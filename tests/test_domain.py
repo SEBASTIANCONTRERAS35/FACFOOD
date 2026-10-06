@@ -38,3 +38,4 @@ def test_ejecutar_entrega_pickup_devuelve_mensaje_correcto():
     assert "recoger" in resultado.lower()
 
 #Prueba Verificada
+#Segunda Verificación
