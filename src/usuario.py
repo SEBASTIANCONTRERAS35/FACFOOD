@@ -34,7 +34,7 @@ class PerfilNoElegibleError(Exception):
 
 
 class Usuario:
-    PEDIDOS_MINIMOS_PARA_VENDEDOR = 1
+    PEDIDOS_MINIMOS_PARA_VENDEDOR = 3
 
     def __init__(self, nombre: str, credencial_unam: str, consentimiento_datos: bool):
         if not consentimiento_datos:
