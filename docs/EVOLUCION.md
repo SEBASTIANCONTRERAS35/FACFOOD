@@ -32,6 +32,20 @@ El CRM vive en su propia carpeta `crm/`, separada del núcleo (`src/`).
 | Regla: los descuentos no se acumulan, se aplica el mayor | `crm/retencion.py` |
 | Pruebas unitarias | `tests/test_crm.py` |
 
+## Sprint 4 — Módulo ERP (órdenes, facturación y flujo financiero)
+El ERP vive en `erp/` y usa los cupones del CRM.
+
+| Qué se hizo | Archivo |
+|---|---|
+| Orden con líneas de pedido; el precio lo dicta el catálogo del servidor | `erp/orden.py` |
+| Total = (Subtotal - Descuentos) + IVA 16% + Envío, con `Decimal` | `erp/orden.py` |
+| Máquina de estados estricta: CREADA -> PAGADA -> EN_PREPARACION -> ENVIADA -> ENTREGADA (o CANCELADA) | `erp/orden.py` |
+| Factura inmutable con folio y XML simplificado (sandbox), validación de RFC | `erp/factura.py` |
+| Pago dividido entre plataforma y vendedor (marketplace) | `erp/orden.py` |
+| Diagrama de clases y de estados | `erp/UML.md` |
+| Pruebas unitarias | `tests/test_erp.py` |
+
 ## Siguiente
+- Implementación de la app: API con FastAPI y PostgreSQL + PostGIS (ver ADR 001)
 - Módulo SCM
-- Reorganización de carpetas
+- Reorganización de carpetas (arquitectura hexagonal)
