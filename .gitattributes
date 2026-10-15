@@ -1,0 +1,6 @@
+# Finales de línea LF en el repositorio (evita conflictos falsos entre Windows y Mac/Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pptx binary
+*.pdf binary
