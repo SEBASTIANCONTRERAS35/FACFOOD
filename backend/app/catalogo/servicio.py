@@ -1,6 +1,7 @@
 """Casos de uso del catálogo: puestos cercanos (PostGIS) y detalle del puesto."""
 
 from app.ports.repositorios import PuntoVenta
+from app.shared.dinero import a_texto
 from app.shared.errores import NoEncontrado
 from app.shared.uow import FabricaUoW
 
@@ -35,3 +36,14 @@ def detalle(fabrica: FabricaUoW, punto_id: int, lat: float | None, lon: float | 
             raise NoEncontrado("Ese puesto no existe")
         distancia = uow.puntos_venta.distancia_m(punto_id, lat, lon) if lat is not None and lon is not None else None
     return a_salida(punto, distancia)
+
+
+def productos(fabrica: FabricaUoW, punto_id: int) -> list[dict]:
+    with fabrica() as uow:
+        if uow.puntos_venta.por_id(punto_id) is None:
+            raise NoEncontrado("Ese puesto no existe")
+        return [
+            {"id": p.id, "punto_venta_id": p.punto_venta_id, "nombre": p.nombre,
+             "descripcion": p.descripcion, "precio": a_texto(p.precio), "disponible": p.disponible}
+            for p in uow.productos.de_punto(punto_id)
+        ]

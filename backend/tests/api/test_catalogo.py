@@ -47,3 +47,10 @@ def test_detalle_del_puesto(cliente):
     assert p["nombre"] == "Tacos Don Memo" and p["distancia_m"] > 0 and p["horario_cierre"] == "17:00"
     assert cliente.get("/puntos-venta/1").json()["distancia_m"] is None
     assert cliente.get("/puntos-venta/999").status_code == 404
+
+
+def test_menu_del_puesto_con_precios_como_texto(cliente):
+    menu = cliente.get("/puntos-venta/1/productos").json()
+    assert [p["nombre"] for p in menu][:2] == ["Taco de pastor", "Taco de suadero"]
+    assert menu[0]["precio"] == "18.00" and isinstance(menu[0]["precio"], str)
+    assert cliente.get("/puntos-venta/999/productos").status_code == 404

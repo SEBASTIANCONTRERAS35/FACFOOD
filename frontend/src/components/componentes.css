@@ -239,6 +239,16 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+.fila-producto__quitar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--brand-navy);
+  background: var(--bg-surface);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
 .fila-producto__cantidad {
   font-size: 15px;
   color: var(--brand-gold);

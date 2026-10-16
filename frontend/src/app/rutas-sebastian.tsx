@@ -6,6 +6,7 @@ import { PerfilPage } from "../features/cuenta/PerfilPage";
 import { RegistroPage } from "../features/cuenta/RegistroPage";
 import { RequiereSesion } from "../features/cuenta/sesion";
 import { ExplorarPage } from "../features/explorar/ExplorarPage";
+import { MenuPage } from "../features/menu/MenuPage";
 
 export const rutasSebastian = (
   <>
@@ -14,7 +15,7 @@ export const rutasSebastian = (
     <Route path="/login" element={<LoginPage />} />
     <Route path="/perfil" element={<RequiereSesion><PerfilPage /></RequiereSesion>} />
     <Route path="/explorar" element={<ExplorarPage />} />
-    <Route path="/puesto/:id" element={<VistaPendiente numero="03" nombre="Menú del puesto" responsable="Sebastián" />} />
+    <Route path="/puesto/:id" element={<MenuPage />} />
     <Route path="/carrito" element={<VistaPendiente numero="04" nombre="Carrito y pago" responsable="Sebastián" />} />
   </>
 );

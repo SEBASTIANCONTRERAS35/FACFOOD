@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 
 from app.catalogo import servicio
-from app.catalogo.esquemas import PuntoVentaSalida
+from app.catalogo.esquemas import ProductoSalida, PuntoVentaSalida
 from app.shared.geo import FACULTAD_DE_INGENIERIA
 from app.shared.uow import FabricaUoW, obtener_fabrica_uow
 
@@ -38,3 +38,9 @@ def detalle(
     fabrica: FabricaUoW = Depends(obtener_fabrica_uow),
 ):
     return servicio.detalle(fabrica, punto_id, lat, lon)
+
+
+@router.get("/puntos-venta/{punto_id}/productos", response_model=list[ProductoSalida],
+            summary="Menú del puesto (el precio lo dicta el servidor)")
+def productos(punto_id: int, fabrica: FabricaUoW = Depends(obtener_fabrica_uow)):
+    return servicio.productos(fabrica, punto_id)

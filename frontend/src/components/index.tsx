@@ -88,6 +88,7 @@ export function FilaProducto(props: {
   cantidad?: number;
   deshabilitado?: boolean;
   onAgregar?: () => void;
+  onQuitar?: () => void;
 }) {
   return (
     <div className="fila-producto">
@@ -96,12 +97,17 @@ export function FilaProducto(props: {
         <p className="fila-producto__desc">{props.descripcion}</p>
         <p className="fila-producto__precio">{props.precio}</p>
       </div>
+      {props.onQuitar && !!props.cantidad && (
+        <button type="button" className="fila-producto__quitar" onClick={props.onQuitar} aria-label={`Quitar un ${props.nombre}`}>
+          −
+        </button>
+      )}
       <button
         type="button"
         className="fila-producto__agregar"
         onClick={props.onAgregar}
         disabled={props.deshabilitado}
-        aria-label={`Agregar ${props.nombre}`}
+        aria-label={props.cantidad ? `Agregar otro ${props.nombre} (llevas ${props.cantidad})` : `Agregar ${props.nombre}`}
       >
         {props.cantidad ? <span className="fila-producto__cantidad">{props.cantidad}</span> : "+"}
       </button>

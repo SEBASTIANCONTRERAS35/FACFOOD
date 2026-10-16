@@ -1,0 +1,44 @@
+.menu__portada {
+  display: grid;
+  gap: 6px;
+  padding: 48px var(--espacio-pantalla) 20px;
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+}
+.menu__atras {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-on-dark);
+  text-decoration: none;
+}
+.menu__nombre {
+  font-size: 32px;
+  color: var(--brand-gold);
+  line-height: 1.1;
+}
+.menu__lugar {
+  font-size: 14px;
+}
+.menu__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+.menu__chips .chip {
+  color: var(--text-primary);
+}
+.menu__aviso {
+  padding: 10px 12px;
+  border-radius: var(--radio-md);
+  background: var(--brand-gold-soft);
+  font-size: 13px;
+}
+.menu__cargando,
+.menu__error {
+  padding-top: 80px;
+}

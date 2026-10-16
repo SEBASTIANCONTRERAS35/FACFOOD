@@ -15,3 +15,12 @@ class PuntoVentaSalida(BaseModel):
     horario_cierre: str
     abierto: bool
     admite_entrega: bool
+
+
+class ProductoSalida(BaseModel):
+    id: int
+    punto_venta_id: int
+    nombre: str
+    descripcion: str
+    precio: str  # dinero como texto: "18.00"
+    disponible: bool
