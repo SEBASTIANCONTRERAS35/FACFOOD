@@ -10,6 +10,9 @@ Reglas (lección 2.3 del curso):
   CREADA -> CANCELADA. Está prohibido saltar estados.
 - Nunca se confía en el frontend: el cliente envía IDs de producto y el
   servidor dicta el precio desde el catálogo. agregar_linea() no recibe precio.
+- Descuentos: no se acumulan; se aplica el mayor entre cupón y lealtad (CRM).
+  El cupón se valida al aplicarlo y otra vez al pagar, y solo se consume si ganó.
+- El envío lo calcula la estrategia de entrega (Strategy: Pickup / EntregaEstudiante).
 - La factura solo se genera en estado PAGADA.
 - Marketplace: el pago se divide entre plataforma y vendedor.
 - Dinero con Decimal (nunca float) y redondeo a centavos.
@@ -21,7 +24,8 @@ from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Mapping
 
-from app.domain.crm.retencion import Cupon
+from app.domain.crm.retencion import Cupon, CuponInvalidoError, descuento_lealtad
+from app.domain.entrega import MetodoDeEntrega
 
 from .factura import Factura, emitir_factura
 
@@ -114,6 +118,8 @@ class Orden:
         self._envio = CERO
         self._factura: Factura | None = None
         self._pedidos_completados = 0
+        self._origen_descuento: str | None = None
+        self._metodo_entrega: str | None = None
 
     @classmethod
     def restaurar(
@@ -126,6 +132,7 @@ class Orden:
         envio: Decimal,
         cupon: Cupon | None = None,
         pedidos_completados: int = 0,
+        origen_descuento: str | None = None,
     ) -> "Orden":
         """Reconstruye una orden guardada (adaptador de persistencia).
 
@@ -139,11 +146,17 @@ class Orden:
         orden._descuento = _redondear(Decimal(str(descuento)))
         orden._envio = _redondear(Decimal(str(envio)))
         orden._pedidos_completados = pedidos_completados
+        orden._origen_descuento = origen_descuento if orden._descuento > CERO else None
         return orden
 
     @property
     def cupon(self) -> Cupon | None:
         return self._cupon
+
+    @property
+    def origen_descuento(self) -> str | None:
+        """De dónde salió el descuento: "cupon", "lealtad" o None."""
+        return self._origen_descuento
 
     # ---- Edición (solo mientras la orden está CREADA) ----
     def _exigir_creada(self) -> None:
@@ -155,6 +168,8 @@ class Orden:
     def agregar_linea(self, producto_id: str, cantidad: int) -> None:
         """El precio lo dicta el catálogo del servidor, nunca el cliente."""
         self._exigir_creada()
+        if isinstance(cantidad, bool) or not isinstance(cantidad, int):
+            raise ValueError("La cantidad debe ser un número entero")
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser mayor a cero")
         if producto_id not in self._catalogo:
@@ -164,9 +179,35 @@ class Orden:
         self._recalcular_descuento()
 
     def aplicar_cupon(self, cupon: Cupon) -> None:
+        """Valida el cupón contra el pedido actual antes de guardarlo (vencido, agotado, mínimo)."""
         self._exigir_creada()
+        cupon.calcular_descuento(float(self.subtotal), self.fecha)  # lanza CuponInvalidoError
         self._cupon = cupon
         self._recalcular_descuento()
+
+    def quitar_cupon(self) -> None:
+        self._exigir_creada()
+        self._cupon = None
+        self._recalcular_descuento()
+
+    def definir_lealtad(self, pedidos_completados: int) -> None:
+        """Pedidos completados del comprador: definen su nivel de lealtad (bronce, plata, oro)."""
+        self._exigir_creada()
+        if pedidos_completados < 0:
+            raise ValueError("Los pedidos completados no pueden ser negativos")
+        self._pedidos_completados = pedidos_completados
+        self._recalcular_descuento()
+
+    def definir_entrega(self, metodo: MetodoDeEntrega, distancia_km: Decimal | float = 0) -> None:
+        """El costo de envío lo dicta la estrategia de entrega (Strategy)."""
+        self._exigir_creada()
+        costo = metodo.calcularCostoEnvio(float(distancia_km))
+        self._envio = _redondear(Decimal(str(costo)))
+        self._metodo_entrega = metodo.nombre
+
+    @property
+    def metodo_entrega(self) -> str | None:
+        return self._metodo_entrega
 
     def definir_envio(self, monto: Decimal) -> None:
         self._exigir_creada()
@@ -174,12 +215,27 @@ class Orden:
             raise ValueError("El envío no puede ser negativo")
         self._envio = _redondear(Decimal(str(monto)))
 
-    def _recalcular_descuento(self) -> None:
-        if self._cupon is None:
-            self._descuento = CERO
-            return
-        descuento = self._cupon.calcular_descuento(float(self.subtotal), self.fecha)
-        self._descuento = _redondear(Decimal(str(descuento)))
+    def _recalcular_descuento(self, estricto: bool = False) -> None:
+        """Se aplica el mayor entre cupón y lealtad; nunca se suman.
+
+        Fuera del pago, un cupón que dejó de ser válido aporta 0 (la orden se puede
+        seguir editando o quitarle el cupón). Al pagar (estricto) se lanza el error.
+        """
+        subtotal = float(self.subtotal)
+        por_lealtad = _redondear(Decimal(str(descuento_lealtad(subtotal, self._pedidos_completados))))
+        por_cupon = CERO
+        if self._cupon is not None:
+            try:
+                por_cupon = _redondear(Decimal(str(self._cupon.calcular_descuento(subtotal, self.fecha))))
+            except CuponInvalidoError:
+                if estricto:
+                    raise
+        if por_cupon > por_lealtad:
+            self._descuento, self._origen_descuento = por_cupon, "cupon"
+        elif por_lealtad > CERO:
+            self._descuento, self._origen_descuento = por_lealtad, "lealtad"
+        else:
+            self._descuento, self._origen_descuento = CERO, None
 
     # ---- Cálculo financiero ----
     @property
@@ -216,9 +272,9 @@ class Orden:
         if destino is EstadoOrden.PAGADA:
             if not self._lineas:
                 raise OrdenVaciaError("No se puede pagar una orden sin líneas")
-            # Se revalida el cupón al pagar y solo entonces se consume
-            self._recalcular_descuento()
-            if self._cupon is not None:
+            # Se revalida el cupón al pagar y solo se consume si fue el descuento aplicado
+            self._recalcular_descuento(estricto=True)
+            if self._origen_descuento == "cupon":
                 self._cupon.registrar_uso()
         self.estado = destino
 

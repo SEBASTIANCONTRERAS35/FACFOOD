@@ -12,8 +12,12 @@ classDiagram
         +Decimal iva
         +Decimal envio
         +Decimal total
+        +str origen_descuento
         +agregar_linea(producto_id, cantidad)
         +aplicar_cupon(cupon)
+        +quitar_cupon()
+        +definir_lealtad(pedidos_completados)
+        +definir_entrega(metodo, distancia_km)
         +definir_envio(monto)
         +avanzar_estado(nuevo)
         +generar_factura(rfc_receptor)
@@ -46,6 +50,7 @@ classDiagram
     Orden "1" -- "0..1" Factura : solo en estado PAGADA
     Orden ..> DivisionPago : crea
     Orden ..> Cupon : usa (CRM)
+    Orden ..> MetodoDeEntrega : calcula el envío (Strategy)
 ```
 
 ## Máquina de estados de la orden
@@ -69,3 +74,7 @@ Regla: la secuencia es estricta e irreversible; está prohibido saltar estados.
 `Total = (Subtotal - Descuentos) + IVA(16%) + Envío`
 
 El IVA se calcula sobre el monto ya con descuento.
+
+Descuentos: no se acumulan. Se aplica el mayor entre el cupón y el nivel de
+lealtad del comprador; el cupón solo se consume al pagar y solo si fue el que
+se aplicó.

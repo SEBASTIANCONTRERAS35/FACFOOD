@@ -36,3 +36,19 @@ def test_ejecutar_entrega_pickup_devuelve_mensaje_correcto():
 
 #Prueba Verificada
 #Segunda Verificación
+
+
+def test_costo_de_envio_por_estrategia():
+    from app.domain.entrega import metodo_de_entrega
+
+    assert metodo_de_entrega("pickup").calcularCostoEnvio(3) == 0
+    assert metodo_de_entrega("estudiante").calcularCostoEnvio(0.6) == 3.0
+
+
+def test_metodo_de_entrega_desconocido():
+    import pytest
+
+    from app.domain.entrega import metodo_de_entrega
+
+    with pytest.raises(ValueError):
+        metodo_de_entrega("dron")
