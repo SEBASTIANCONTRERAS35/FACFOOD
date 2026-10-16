@@ -126,6 +126,7 @@ class OrdenM(Base):
     pedidos_completados_al_crear: Mapped[int] = mapped_column(Integer, default=0)
     subtotal: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     descuento: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    origen_descuento: Mapped[str | None] = mapped_column(String(10))
     iva: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     envio: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     total: Mapped[Decimal] = mapped_column(Numeric(10, 2))
@@ -137,6 +138,7 @@ class OrdenM(Base):
             name="ck_ordenes_estado",
         ),
         CheckConstraint("metodo_entrega IN ('pickup','estudiante')", name="ck_ordenes_metodo"),
+        CheckConstraint("origen_descuento IN ('cupon','lealtad')", name="ck_ordenes_origen_descuento"),
     )
 
 

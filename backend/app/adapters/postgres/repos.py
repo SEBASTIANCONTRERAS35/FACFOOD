@@ -282,6 +282,7 @@ class OrdenRepoPg(_Repo):
         orden = Orden.restaurar(
             catalogo, m.fecha, m.estado, lineas, Decimal(m.descuento), Decimal(m.envio), cupon,
             pedidos_completados=m.pedidos_completados_al_crear,
+            origen_descuento=m.origen_descuento,
         )
         return OrdenRegistro(
             id=m.id, comprador_id=m.comprador_id, punto_venta_id=m.punto_venta_id, orden=orden,
@@ -301,6 +302,7 @@ class OrdenRepoPg(_Repo):
         m.cupon_id = r.cupon_id
         m.pedidos_completados_al_crear = r.pedidos_completados_al_crear
         m.subtotal, m.descuento, m.iva, m.envio, m.total = o.subtotal, o.descuentos, o.iva, o.envio, o.total
+        m.origen_descuento = o.origen_descuento
         m.codigo_entrega = r.codigo_entrega
 
     def _guardar_lineas(self, m: OrdenM, r: OrdenRegistro) -> None:
