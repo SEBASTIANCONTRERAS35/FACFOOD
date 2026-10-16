@@ -1,0 +1,26 @@
+/* Tokens de diseño — mismos nombres y valores que las variables del Figma (FACFOOD / Color). */
+:root {
+  --brand-navy: #0d1b33;
+  --brand-navy-700: #1c2e52;
+  --brand-gold: #e8a82b;
+  --brand-gold-soft: #fdf3dc;
+  --bg-canvas: #f6f5f2;
+  --bg-surface: #ffffff;
+  --text-primary: #0d1b33;
+  --text-muted: #5b6475;
+  --text-on-dark: #ffffff;
+  --border-default: #e3e1db;
+  --status-success: #2e9e5b;
+  --status-success-soft: #e3f4ea;
+  --status-danger: #d64545;
+
+  --radio-sm: 10px;
+  --radio-md: 12px;
+  --radio-lg: 16px;
+  --radio-pill: 999px;
+  --espacio-pantalla: 24px;
+  --ancho-app: 430px;
+
+  --fuente: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fuente-marca: "Roboto Condensed", "Roboto", system-ui, sans-serif;
+}

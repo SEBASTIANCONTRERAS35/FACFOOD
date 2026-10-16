@@ -1,0 +1,364 @@
+/* Estilos de los componentes compartidos (ver Figma › Componentes). */
+
+/* ---- Pantalla ---- */
+.pantalla {
+  position: relative;
+  max-width: var(--ancho-app);
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg-canvas);
+  box-shadow: 0 0 0 1px rgba(13, 27, 51, 0.04), 0 12px 40px rgba(13, 27, 51, 0.08);
+}
+.pantalla__contenido {
+  padding-bottom: 24px;
+}
+.pantalla__contenido--con-barra {
+  padding-bottom: 120px;
+}
+.seccion {
+  padding: 0 var(--espacio-pantalla);
+}
+.titulo-seccion {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 16px 0 10px;
+}
+
+/* ---- Barra inferior fija (acción principal o navegación) ---- */
+.barra-accion,
+.nav-inferior {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--ancho-app);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-default);
+  z-index: 1000;
+}
+.barra-accion {
+  padding: 12px var(--espacio-pantalla) calc(16px + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 6px;
+}
+.nav-inferior {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 36px calc(14px + env(safe-area-inset-bottom));
+}
+.nav-inferior__item {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.nav-inferior__item--activo {
+  color: var(--brand-navy);
+}
+.nav-inferior__item--activo svg {
+  color: var(--brand-gold);
+}
+
+/* ---- Botón ---- */
+.boton {
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 20px;
+  border-radius: var(--radio-md);
+  border: 1.5px solid transparent;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+}
+.boton--primario {
+  background: var(--brand-gold);
+  color: var(--text-primary);
+}
+.boton--secundario {
+  background: var(--bg-surface);
+  border-color: var(--brand-navy);
+  color: var(--text-primary);
+}
+.boton:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+.boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.boton:focus-visible,
+.chip--boton:focus-visible,
+.tarjeta-puesto:focus-visible,
+.fila-producto__agregar:focus-visible {
+  outline: 3px solid var(--brand-navy-700);
+  outline-offset: 2px;
+}
+
+/* ---- Campo (Input) ---- */
+.campo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radio-md);
+  color: var(--text-muted);
+}
+.campo:focus-within {
+  border-color: var(--brand-navy);
+}
+.campo--error {
+  border-color: var(--status-danger);
+}
+.campo input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.campo input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ---- Chip ---- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: var(--radio-pill);
+  background: var(--brand-gold-soft);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 0;
+}
+.chip--boton {
+  cursor: pointer;
+}
+.chip--activo {
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+}
+
+/* ---- Tarjeta de puesto ---- */
+.tarjeta-puesto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radio-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  text-align: left;
+  cursor: pointer;
+}
+.tarjeta-puesto--cerrado {
+  opacity: 0.6;
+}
+.tarjeta-puesto__foto {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radio-md);
+  background: var(--brand-gold-soft);
+  color: var(--brand-gold);
+}
+.tarjeta-puesto__info {
+  display: grid;
+  gap: 4px;
+}
+.tarjeta-puesto__nombre {
+  font-size: 16px;
+  font-weight: 600;
+}
+.tarjeta-puesto__detalle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.tarjeta-puesto__entrega {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--status-success);
+}
+.tarjeta-puesto--cerrado .tarjeta-puesto__entrega {
+  color: var(--status-danger);
+}
+
+/* ---- Fila de producto ---- */
+.fila-producto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.fila-producto__info {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.fila-producto__nombre {
+  font-size: 15px;
+  font-weight: 600;
+}
+.fila-producto__desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.fila-producto__precio {
+  font-size: 15px;
+  font-weight: 700;
+}
+.fila-producto__agregar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radio-sm);
+  border: 0;
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.fila-producto__agregar:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.fila-producto__cantidad {
+  font-size: 15px;
+  color: var(--brand-gold);
+}
+
+/* ---- Paso de estado ---- */
+.paso {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+}
+.paso__punto {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-on-dark);
+}
+.paso--hecho .paso__punto {
+  background: var(--status-success);
+  border-color: var(--status-success);
+}
+.paso--actual .paso__punto {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+}
+.paso__interior {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand-navy);
+}
+.paso__titulo {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+.paso--pendiente .paso__titulo {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.paso__detalle {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---- Tarjeta ---- */
+.tarjeta {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radio-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+/* ---- Mapa ---- */
+.mapa {
+  position: relative;
+  z-index: 0;
+  background: #e3ebde;
+}
+.pin-mapa {
+  background: none;
+  border: 0;
+}
+
+/* ---- Vista pendiente ---- */
+.vista-pendiente {
+  display: grid;
+  gap: 8px;
+  padding: 120px var(--espacio-pantalla);
+  text-align: center;
+}
+.vista-pendiente__numero {
+  font-size: 48px;
+  color: var(--brand-gold);
+}
+
+/* ---- Selector de usuario de prueba (solo desarrollo) ---- */
+.selector-prueba {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 2000;
+  font-size: 12px;
+}
+.selector-prueba ul {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radio-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.selector-prueba li button {
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.selector-prueba li button[aria-pressed="true"] {
+  font-weight: 700;
+}
+.selector-prueba__abrir {
+  float: right;
+  padding: 4px 10px;
+  border-radius: var(--radio-pill);
+  border: 0;
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+  font-weight: 700;
+  cursor: pointer;
+}

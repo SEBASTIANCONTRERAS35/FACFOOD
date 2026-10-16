@@ -45,7 +45,18 @@ El ERP vive en `erp/` y usa los cupones del CRM.
 | Diagrama de clases y de estados | `erp/UML.md` |
 | Pruebas unitarias | `tests/test_erp.py` |
 
+## MVP — Estructura base de la app (ADR 002)
+El dominio se movió a `backend/app/domain/` y alrededor se construyó la app hexagonal.
+
+| Qué se hizo | Dónde |
+|---|---|
+| Puertos de persistencia y adaptadores en memoria y PostgreSQL + PostGIS | `backend/app/ports/`, `backend/app/adapters/` |
+| Esquema completo con Alembic y datos de ejemplo de CU | `backend/migrations/`, `backend/app/seed.py` |
+| Autenticación (JWT) y usuario de prueba para desarrollo | `backend/app/shared/auth.py` |
+| Frontend React con los componentes del Figma | `frontend/src/components/` |
+| Diseño de las 8 pantallas y contrato entre las dos mitades | `docs/diseno/`, `docs/CONTRATO.md` |
+| CI con backend, integración con PostGIS y frontend | `.github/workflows/ci.yml` |
+
 ## Siguiente
-- Implementación de la app: API con FastAPI y PostgreSQL + PostGIS (ver ADR 001)
+- Vistas 01–04 (Sebastián) y 05–08 (Arturo), ver `docs/CONTRATO.md`
 - Módulo SCM
-- Reorganización de carpetas (arquitectura hexagonal)

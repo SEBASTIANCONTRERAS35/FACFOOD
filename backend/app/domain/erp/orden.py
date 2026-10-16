@@ -113,6 +113,37 @@ class Orden:
         self._descuento = CERO
         self._envio = CERO
         self._factura: Factura | None = None
+        self._pedidos_completados = 0
+
+    @classmethod
+    def restaurar(
+        cls,
+        catalogo: Mapping[str, Decimal],
+        fecha: date,
+        estado,
+        lineas: list[LineaPedido],
+        descuento: Decimal,
+        envio: Decimal,
+        cupon: Cupon | None = None,
+        pedidos_completados: int = 0,
+    ) -> "Orden":
+        """Reconstruye una orden guardada (adaptador de persistencia).
+
+        El descuento se restaura tal cual se guardó: en una orden ya pagada el
+        cupón pudo agotarse después, y recalcularlo cambiaría el cobro histórico.
+        """
+        orden = cls(catalogo, fecha)
+        orden.estado = cls._a_estado(estado)
+        orden._lineas = list(lineas)
+        orden._cupon = cupon
+        orden._descuento = _redondear(Decimal(str(descuento)))
+        orden._envio = _redondear(Decimal(str(envio)))
+        orden._pedidos_completados = pedidos_completados
+        return orden
+
+    @property
+    def cupon(self) -> Cupon | None:
+        return self._cupon
 
     # ---- Edición (solo mientras la orden está CREADA) ----
     def _exigir_creada(self) -> None:

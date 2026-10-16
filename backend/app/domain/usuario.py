@@ -51,6 +51,25 @@ class Usuario:
         self.rol = "comprador"
         self.pedidos_completados = 0
 
+    @classmethod
+    def restaurar(
+        cls,
+        nombre: str,
+        credencial_unam: str,
+        password_hash: bytes | None,
+        rol: str,
+        pedidos_completados: int,
+    ) -> "Usuario":
+        """Reconstruye un usuario guardado (adaptador de persistencia).
+
+        Solo existen usuarios guardados que dieron su consentimiento al registrarse.
+        """
+        usuario = cls(nombre, credencial_unam, consentimiento_datos=True)
+        usuario._password_hash = password_hash
+        usuario.rol = rol
+        usuario.pedidos_completados = pedidos_completados
+        return usuario
+
     # ---- Paso 2: Regla Core de Negocio (Perfil Dual) ----
     def registrar_pedido_completado(self) -> None:
         self.pedidos_completados += 1
