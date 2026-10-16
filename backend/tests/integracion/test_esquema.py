@@ -3,16 +3,13 @@ from decimal import Decimal
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 
-from app.adapters.postgres.modelos import Base
+from app.adapters.postgres.modelos import Base, es_nuestro
 from app.domain.erp.orden import EstadoOrden
 
 
 def test_la_migracion_coincide_con_los_modelos(sesiones):
     with sesiones() as s:
-        contexto = MigrationContext.configure(
-            s.connection(),
-            opts={"include_object": lambda o, n, t, r, c: not (t == "table" and n == "spatial_ref_sys")},
-        )
+        contexto = MigrationContext.configure(s.connection(), opts={"include_object": es_nuestro})
         diferencias = compare_metadata(contexto, Base.metadata)
     assert diferencias == []
 

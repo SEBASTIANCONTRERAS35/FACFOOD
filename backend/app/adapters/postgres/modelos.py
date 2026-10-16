@@ -33,6 +33,14 @@ class Base(DeclarativeBase):
     pass
 
 
+def es_nuestro(objeto, nombre, tipo, reflejado, comparado_con) -> bool:
+    """Filtro para Alembic: ignora lo que crean PostGIS y su geocodificador (tiger, etc.)."""
+    if tipo == "table":
+        return nombre in Base.metadata.tables
+    tabla = getattr(objeto, "table", None)
+    return tabla is None or tabla.name in Base.metadata.tables
+
+
 def _punto():
     return Geography(geometry_type="POINT", srid=4326, spatial_index=False)
 
