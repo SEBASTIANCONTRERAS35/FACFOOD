@@ -57,6 +57,16 @@ El dominio se movió a `backend/app/domain/` y alrededor se construyó la app he
 | Diseño de las 8 pantallas y contrato entre las dos mitades | `docs/diseno/`, `docs/CONTRATO.md` |
 | CI con backend, integración con PostGIS y frontend | `.github/workflows/ci.yml` |
 
+## MVP — Vistas 01–04 (Sebastián)
+| Vista | Backend | Frontend |
+|---|---|---|
+| 01 Registro e inicio de sesión (LFPDPPP, JWT, perfil dual) | `backend/app/cuentas/` | `frontend/src/features/cuenta/` |
+| 02 Explorar puestos cercanos (PostGIS + mapa Leaflet) | `backend/app/catalogo/` | `frontend/src/features/explorar/` |
+| 03 Menú del puesto y carrito | `backend/app/catalogo/` | `frontend/src/features/menu/`, `features/carrito/carrito.tsx` |
+| 04 Carrito y pago (cupón o lealtad, Strategy de entrega, factura, concurrencia) | `backend/app/checkout/` | `frontend/src/features/carrito/CarritoPage.tsx` |
+
+También se corrigieron 4 errores del ERP (`backend/tests/unit/test_erp_correcciones.py`).
+
 ## Siguiente
-- Vistas 01–04 (Sebastián) y 05–08 (Arturo), ver `docs/CONTRATO.md`
+- Vistas 05–08 (Arturo), ver `docs/CONTRATO.md`
 - Módulo SCM
