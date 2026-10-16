@@ -1,0 +1,40 @@
+.explorar__encabezado {
+  display: grid;
+  gap: 12px;
+  padding: 52px var(--espacio-pantalla) 12px;
+}
+.explorar__ubicacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.explorar__ubicacion svg {
+  color: var(--brand-gold);
+}
+.explorar__titulo {
+  font-size: 24px;
+  font-weight: 700;
+}
+.explorar__encabezado .campo {
+  height: 48px;
+}
+.explorar__filtros {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 14px var(--espacio-pantalla) 4px;
+  scrollbar-width: none;
+}
+.explorar__filtros::-webkit-scrollbar {
+  display: none;
+}
+.explorar__lista {
+  display: grid;
+  gap: 10px;
+}
+.explorar__lista .titulo-seccion {
+  margin-bottom: 0;
+}
