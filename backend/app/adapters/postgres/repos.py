@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from geoalchemy2 import Geometry, WKTElement
 from sqlalchemy import cast, func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.adapters.postgres.modelos import (
@@ -33,6 +34,7 @@ from app.ports.repositorios import (
     PuntoVenta,
     PuntoVentaCercano,
 )
+from app.shared.errores import Conflicto
 
 
 def _punto_wkt(lat: float, lon: float) -> WKTElement:
@@ -65,7 +67,11 @@ class UsuarioRepoPg(_Repo):
             rol=u.rol, pedidos_completados=u.pedidos_completados,
         )
         self.s.add(m)
-        self.s.flush()
+        try:
+            self.s.flush()
+        except IntegrityError:
+            # Dos registros simultáneos con el mismo correo o credencial.
+            raise Conflicto("Ya existe una cuenta con ese correo o número de cuenta", "CUENTA_DUPLICADA")
         return _a_cuenta(m)
 
     def guardar(self, cuenta):
