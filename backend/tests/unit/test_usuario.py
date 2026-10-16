@@ -4,13 +4,10 @@ Cubre: Paso 2 (perfil dual comprador/vendedor) y
        Paso 3 (hashing Art.18 LFPDPPP + consentimiento Art.7 LFPDPPP).
 """
 
-import sys
-import os
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from usuario import Usuario, ConsentimientoRequeridoError, PerfilNoElegibleError
+from app.domain.usuario import Usuario, ConsentimientoRequeridoError, PerfilNoElegibleError
 
 
 # ---- Paso 1 y 3: consentimiento ----

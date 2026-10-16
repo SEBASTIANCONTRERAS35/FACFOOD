@@ -3,15 +3,12 @@ Pruebas unitarias del módulo CRM (cupones y lealtad).
 Aisladas: no dependen de base de datos ni de frameworks.
 """
 
-import sys
-import os
 from datetime import date, timedelta
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from crm.retencion import (
+from app.domain.crm.retencion import (
     Cupon,
     CuponInvalidoError,
     nivel_lealtad,

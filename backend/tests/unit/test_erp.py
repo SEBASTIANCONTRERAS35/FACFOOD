@@ -4,17 +4,14 @@ Aisladas: no dependen de base de datos ni de frameworks.
 En el módulo financiero, lo que no está cubierto por una prueba se asume roto.
 """
 
-import sys
-import os
 from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from crm.retencion import Cupon, CuponInvalidoError
-from erp.orden import (
+from app.domain.crm.retencion import Cupon, CuponInvalidoError
+from app.domain.erp.orden import (
     Orden,
     EstadoOrden,
     InvalidStateTransitionException,
@@ -24,7 +21,7 @@ from erp.orden import (
     FacturaNoPermitidaError,
     OrdenNoPagadaError,
 )
-from erp.factura import RfcInvalidoError
+from app.domain.erp.factura import RfcInvalidoError
 
 HOY = date(2026, 10, 13)
 CATALOGO = {"torta": Decimal("100.00"), "agua": Decimal("20.00")}

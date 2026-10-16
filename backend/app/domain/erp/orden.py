@@ -21,7 +21,7 @@ from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Mapping
 
-from crm.retencion import Cupon
+from app.domain.crm.retencion import Cupon
 
 from .factura import Factura, emitir_factura
 
