@@ -1,0 +1,93 @@
+.cuenta {
+  display: grid;
+  gap: 20px;
+  padding: 56px var(--espacio-pantalla) 32px;
+}
+.cuenta__titulo {
+  font-size: 24px;
+  font-weight: 700;
+}
+.cuenta__campos,
+.cuenta__acciones {
+  display: grid;
+  gap: 12px;
+}
+.cuenta__acciones {
+  padding-top: 8px;
+}
+.cuenta__enlace-boton {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+.cuenta__nota {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-navy-700);
+  text-align: center;
+}
+
+.marca-facfood {
+  display: grid;
+  gap: 6px;
+}
+.marca-facfood__fila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.marca-facfood__logo {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radio-md);
+  background: var(--brand-navy);
+  color: var(--brand-gold);
+}
+.marca-facfood__nombre {
+  font-size: 40px;
+  color: var(--brand-navy);
+  line-height: 1;
+}
+
+.consentimiento {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+}
+.consentimiento input {
+  position: absolute;
+  opacity: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+}
+.consentimiento__caja {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--brand-navy);
+  background: var(--bg-surface);
+  color: var(--text-on-dark);
+}
+.consentimiento input:checked + .consentimiento__caja {
+  background: var(--brand-navy);
+}
+.consentimiento input:focus-visible + .consentimiento__caja {
+  outline: 3px solid var(--brand-gold);
+  outline-offset: 2px;
+}
+.consentimiento__texto {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.perfil__dual {
+  background: var(--brand-gold-soft);
+  border-color: var(--brand-gold);
+}

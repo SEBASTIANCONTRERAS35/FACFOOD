@@ -6,7 +6,13 @@ const CLAVE_TOKEN = "facfood.token";
 const CLAVE_USUARIO_PRUEBA = "facfood.usuarioPrueba";
 
 export class ApiError extends Error {
-  constructor(public status: number, mensaje: string, public codigo?: string) {
+  constructor(
+    public status: number,
+    mensaje: string,
+    public codigo?: string,
+    /** Errores de validación por campo (422 de FastAPI): { correo: "Escribe un correo válido" } */
+    public campos: Record<string, string> = {},
+  ) {
     super(mensaje);
   }
 }
@@ -43,8 +49,20 @@ export async function api<T>(ruta: string, { method = "GET", body, signal }: Opc
   }
 
   const datos = respuesta.status === 204 ? null : await respuesta.json().catch(() => null);
-  if (!respuesta.ok) throw new ApiError(respuesta.status, mensajeDeError(datos), datos?.codigo);
+  if (!respuesta.ok) throw new ApiError(respuesta.status, mensajeDeError(datos), datos?.codigo, erroresPorCampo(datos));
   return datos as T;
+}
+
+function erroresPorCampo(datos: unknown): Record<string, string> {
+  const detalle = (datos as { detail?: unknown } | null)?.detail;
+  const campos: Record<string, string> = {};
+  if (Array.isArray(detalle)) {
+    for (const d of detalle as { loc?: unknown[]; msg?: string }[]) {
+      const campo = d.loc?.[d.loc.length - 1];
+      if (typeof campo === "string" && d.msg) campos[campo] = d.msg.replace(/^Value error, /, "");
+    }
+  }
+  return campos;
 }
 
 // FastAPI responde {"detail": "texto"} o, si falla la validación, {"detail": [{msg, loc}, ...]}.
