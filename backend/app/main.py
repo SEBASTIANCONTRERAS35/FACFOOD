@@ -16,7 +16,7 @@ from app.vendedor.router import router as vendedor
 
 def create_app() -> FastAPI:
     config = obtener_config()
-app = FastAPI(
+    app = FastAPI(
         title="FACFOOD API",
         version="0.1.0",
         description=(
