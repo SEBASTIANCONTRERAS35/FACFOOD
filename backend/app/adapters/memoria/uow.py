@@ -11,7 +11,8 @@ import threading
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 
-from app.ports.repositorios import PuntoVentaCercano
+from app.ports.repositorios import EntregaRegistro, PuntoVentaCercano
+from app.shared.errores import Conflicto
 from app.shared.geo import distancia_m
 
 
@@ -30,6 +31,7 @@ class _Datos:
     ordenes: dict = field(default_factory=dict)
     eventos: list = field(default_factory=list)
     facturas: dict = field(default_factory=dict)
+    entregas: dict = field(default_factory=dict)
     secuencias: dict = field(default_factory=dict)
 
     def siguiente_id(self, tabla: str) -> int:
@@ -204,6 +206,34 @@ class FacturaRepoMemoria(_Repo):
         return self.d.facturas.get(orden_id)
 
 
+class EntregaRepoMemoria(_Repo):
+    def ordenes_disponibles(self):
+        return [
+            copy.deepcopy(r) for r in sorted(self.d.ordenes.values(), key=lambda r: r.id)
+            if r.metodo_entrega == "estudiante"
+            and r.orden.estado.value in {"PAGADA", "EN_PREPARACION"}
+            and r.id not in self.d.entregas
+        ]
+
+    def por_orden(self, orden_id):
+        return copy.deepcopy(self.d.entregas.get(orden_id))
+
+    def agregar(self, registro):
+        if registro.orden_id in self.d.entregas:
+            raise Conflicto("La orden ya fue aceptada por otro repartidor", "ENTREGA_YA_ACEPTADA")
+        guardado = replace(registro, id=self.d.siguiente_id("entregas"))
+        self.d.entregas[guardado.orden_id] = copy.deepcopy(guardado)
+        return copy.deepcopy(guardado)
+
+    def guardar(self, registro):
+        if registro.orden_id not in self.d.entregas:
+            raise KeyError(registro.orden_id)
+        self.d.entregas[registro.orden_id] = copy.deepcopy(registro)
+
+    def de_repartidor(self, repartidor_id):
+        return [copy.deepcopy(e) for e in sorted(self.d.entregas.values(), key=lambda e: e.id or 0) if e.repartidor_id == repartidor_id]
+
+
 class UnidadDeTrabajoMemoria:
     def __init__(self, almacen: AlmacenMemoria):
         self._almacen = almacen
@@ -221,6 +251,7 @@ class UnidadDeTrabajoMemoria:
         self.ordenes = OrdenRepoMemoria(d)
         self.eventos = EventoRepoMemoria(d)
         self.facturas = FacturaRepoMemoria(d)
+        self.entregas = EntregaRepoMemoria(d)
         return self
 
     def __exit__(self, tipo, valor, traza):
