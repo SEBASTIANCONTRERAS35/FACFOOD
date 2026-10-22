@@ -3,7 +3,12 @@
 Toda respuesta de error tiene la forma {"detail": "...", "codigo": "..."}.
 """
 
+import re
+
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.domain.crm.retencion import CuponInvalidoError
@@ -75,6 +80,18 @@ def registrar_manejadores(app: FastAPI) -> None:
         return JSONResponse({"detail": exc.mensaje, "codigo": exc.codigo}, status_code=exc.status)
 
     app.add_exception_handler(ErrorDeAplicacion, de_aplicacion)
+
+    async def de_validacion_entrega(request: Request, exc: RequestValidationError):
+        if not re.fullmatch(r"/entregas/\d+/entregar", request.url.path):
+            return await request_validation_exception_handler(request, exc)
+
+        errores = exc.errors()
+        for error in errores:
+            if error.get("loc", ())[:2] == ("body", "codigo_entrega"):
+                error.pop("input", None)
+        return JSONResponse({"detail": jsonable_encoder(errores)}, status_code=422)
+
+    app.add_exception_handler(RequestValidationError, de_validacion_entrega)
 
     for tipo, (status, codigo) in ERRORES_DE_DOMINIO.items():
 
