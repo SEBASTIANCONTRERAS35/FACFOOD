@@ -11,7 +11,7 @@ import threading
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 
-from app.ports.repositorios import EntregaRegistro, PuntoVentaCercano
+from app.ports.repositorios import PuntoVentaCercano
 from app.shared.errores import Conflicto
 from app.shared.geo import distancia_m
 

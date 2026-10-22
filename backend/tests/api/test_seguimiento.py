@@ -57,8 +57,17 @@ def test_orden_ajena_se_presenta_como_inexistente(cliente):
 
 
 def test_rol_no_comprador_no_consulta_seguimiento(cliente):
+    # La orden 1 es de Diana: para otro usuario no existe (no se revela que existe).
     respuesta = cliente.get("/ordenes/1", headers=como(3))
-    assert respuesta.status_code == 403
+    assert respuesta.status_code == 404
+
+
+def test_comprador_que_se_vuelve_vendedor_sigue_viendo_sus_pedidos(cliente):
+    orden = cliente.post("/ordenes", headers=como(2), json={"punto_venta_id": 1, "lineas": [{"producto_id": 1, "cantidad": 1}]}).json()
+    cliente.post(f"/ordenes/{orden['id']}/pagar", headers=como(2))
+    assert cliente.post("/usuarios/me/vendedor", headers=como(2)).json()["rol"] == "vendedor"
+    assert cliente.get(f"/ordenes/{orden['id']}", headers=como(2)).status_code == 200
+    assert cliente.get(f"/ordenes/{orden['id']}/factura", headers=como(2)).status_code == 200
 
 
 def test_seguimiento_requiere_sesion(cliente):

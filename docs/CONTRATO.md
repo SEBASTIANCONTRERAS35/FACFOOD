@@ -40,8 +40,12 @@ CREADA ──pagar──▶ PAGADA ──▶ EN_PREPARACION ──▶ ENVIADA �
 - Cada transición agrega una fila a `orden_eventos` con `estado`, `actor_id` y `creado_en`.
 - Para **pickup**, ENVIADA significa "listo para recoger". Para **entrega estudiante**,
   ENVIADA significa "el repartidor ya lo recogió y va en camino".
-- Al pasar a ENTREGADA, quien entrega suma 1 a `usuarios.pedidos_completados` del comprador
-  (`Usuario.registrar_pedido_completado()`); eso alimenta la lealtad y el perfil dual.
+- Pickup: el vendedor lleva la orden hasta ENTREGADA cuando el cliente la recoge. Entrega
+  estudiante: ENVIADA y ENTREGADA solo las marca el repartidor (la entrega, con el código).
+- Al pasar a ENTREGADA, quien entrega (vendedor en pickup, repartidor en entrega estudiante) suma 1
+  a `usuarios.pedidos_completados` del comprador (`Usuario.registrar_pedido_completado()`); eso
+  alimenta la lealtad y el perfil dual.
+- El seguimiento (vista 05) lo ve el comprador de la orden, sin importar su rol actual.
 
 ## 4. Entrega por estudiante
 

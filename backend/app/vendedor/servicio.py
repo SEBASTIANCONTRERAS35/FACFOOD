@@ -12,7 +12,9 @@ def listar_ordenes(f: FabricaUoW, u: UsuarioActual):
         out = []
         for p in puntos:
             for r in w.ordenes.de_punto(p.id):
-                if r.orden.estado in (EstadoOrden.PAGADA, EstadoOrden.EN_PREPARACION):
+                # Pickup listo (ENVIADA) sigue en el panel hasta que el cliente lo recoge.
+                pickup_listo = r.orden.estado is EstadoOrden.ENVIADA and r.metodo_entrega == "pickup"
+                if r.orden.estado in (EstadoOrden.PAGADA, EstadoOrden.EN_PREPARACION) or pickup_listo:
                     out.append({
                         "id": r.id, "estado": r.orden.estado.value,
                         "punto_venta_id": p.id, "punto_venta": p.nombre,
@@ -37,9 +39,14 @@ def _propia(w: UnidadDeTrabajo, u: UsuarioActual, i: int):
 def cambiar_estado(f: FabricaUoW, u: UsuarioActual, i: int, estado: str):
     with f() as w:
         r = _propia(w, u, i)
-        if estado == EstadoOrden.ENVIADA.value and r.metodo_entrega == "estudiante":
+        if estado in (EstadoOrden.ENVIADA.value, EstadoOrden.ENTREGADA.value) and r.metodo_entrega == "estudiante":
             raise Conflicto("La entrega estudiantil debe marcarla el repartidor", "TRANSICION_NO_AUTORIZADA")
         r.orden.avanzar_estado(estado)
+        if r.orden.estado is EstadoOrden.ENTREGADA:
+            # Igual que el repartidor: el pedido completado alimenta la lealtad y el perfil dual.
+            comprador = w.usuarios.por_id(r.comprador_id)
+            comprador.usuario.registrar_pedido_completado()
+            w.usuarios.guardar(comprador)
         w.ordenes.guardar(r)
         w.eventos.agregar(EventoOrden(i, r.orden.estado.value, datetime.now(timezone.utc), u.id))
         w.commit()

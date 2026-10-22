@@ -28,3 +28,20 @@ def test_orden_ajena_es_inexistente(cliente):
 def test_puesto_propio_y_ajeno(cliente):
  assert cliente.patch("/puntos-venta/1",headers=como(3),json={"abierto":False}).status_code==200
  assert cliente.patch("/puntos-venta/2",headers=como(3),json={"abierto":False}).status_code==404
+
+
+def test_pickup_se_cierra_en_el_panel_y_suma_el_pedido_completado(cliente):
+    orden = cliente.post("/ordenes", headers=como(1), json={"punto_venta_id": 1, "lineas": [{"producto_id": 1, "cantidad": 1}]}).json()
+    cliente.post(f"/ordenes/{orden['id']}/pagar", headers=como(1))
+    for estado in ("EN_PREPARACION", "ENVIADA"):
+        assert cliente.post(f"/ordenes/{orden['id']}/estado", headers=como(3), json={"estado": estado}).status_code == 200
+    panel = cliente.get("/vendedor/ordenes", headers=como(3)).json()["ordenes"]
+    assert orden["id"] in [o["id"] for o in panel]  # listo para recoger: sigue visible
+    assert cliente.post(f"/ordenes/{orden['id']}/estado", headers=como(3), json={"estado": "ENTREGADA"}).status_code == 200
+    assert orden["id"] not in [o["id"] for o in cliente.get("/vendedor/ordenes", headers=como(3)).json()["ordenes"]]
+    assert cliente.get("/usuarios/me", headers=como(1)).json()["pedidos_completados"] == 1
+
+
+def test_el_vendedor_no_cierra_una_entrega_estudiante(cliente):
+    # La orden 1 de ejemplo es de entrega estudiante: la cierra el repartidor con el código.
+    assert cliente.post("/ordenes/1/estado", headers=como(3), json={"estado": "ENTREGADA"}).status_code == 409
