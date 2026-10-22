@@ -1,0 +1,1 @@
+import {describe,it,expect} from "vitest";import{siguienteEstado}from"./vendedor";describe("siguienteEstado",()=>{it("avanza pagada",()=>expect(siguienteEstado("PAGADA","pickup")).toBe("EN_PREPARACION"));it("solo envia pickup",()=>{expect(siguienteEstado("EN_PREPARACION","pickup")).toBe("ENVIADA");expect(siguienteEstado("EN_PREPARACION","estudiante")).toBeNull()})});

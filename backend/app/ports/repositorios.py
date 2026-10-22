@@ -104,6 +104,17 @@ class EventoOrden:
 
 
 @dataclass(frozen=True)
+class EntregaRegistro:
+    id: int | None
+    orden_id: int
+    repartidor_id: int | None
+    estado: str
+    aceptada_en: datetime | None = None
+    recogida_en: datetime | None = None
+    entregada_en: datetime | None = None
+
+
+@dataclass(frozen=True)
 class FacturaRegistro:
     orden_id: int
     factura: Factura
@@ -123,6 +134,7 @@ class UsuarioRepo(Protocol):
 class PuntoVentaRepo(Protocol):
     def agregar(self, punto: PuntoVenta) -> PuntoVenta: ...
     def por_id(self, punto_id: int) -> PuntoVenta | None: ...
+    def de_vendedor(self, vendedor_id: int) -> list[PuntoVenta]: ...
     def cercanos(
         self, lat: float, lon: float, radio_m: int,
         categoria: str | None = None, texto: str | None = None,
@@ -164,6 +176,14 @@ class EventoRepo(Protocol):
     def de_orden(self, orden_id: int) -> list[EventoOrden]: ...
 
 
+class EntregaRepo(Protocol):
+    def ordenes_disponibles(self) -> list[OrdenRegistro]: ...
+    def por_orden(self, orden_id: int) -> EntregaRegistro | None: ...
+    def agregar(self, registro: EntregaRegistro) -> EntregaRegistro: ...
+    def guardar(self, registro: EntregaRegistro) -> None: ...
+    def de_repartidor(self, repartidor_id: int) -> list[EntregaRegistro]: ...
+
+
 class FacturaRepo(Protocol):
     def agregar(self, registro: FacturaRegistro) -> None: ...
     def de_orden(self, orden_id: int) -> FacturaRegistro | None: ...
@@ -180,6 +200,7 @@ class UnidadDeTrabajo(Protocol):
     ordenes: OrdenRepo
     eventos: EventoRepo
     facturas: FacturaRepo
+    entregas: EntregaRepo
 
     def __enter__(self) -> "UnidadDeTrabajo": ...
     def __exit__(self, *exc) -> None: ...

@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from app.adapters.postgres.repos import (
     CuponRepoPg,
     DestinoRepoPg,
+    EntregaRepoPg,
     EventoRepoPg,
     FacturaRepoPg,
     OrdenRepoPg,
@@ -35,6 +36,7 @@ class UnidadDeTrabajoPostgres:
         self.ordenes = OrdenRepoPg(s)
         self.eventos = EventoRepoPg(s)
         self.facturas = FacturaRepoPg(s)
+        self.entregas = EntregaRepoPg(s)
         return self
 
     def __exit__(self, *exc):

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.adapters.postgres.modelos import (
     CuponM,
     DestinoM,
+    EntregaM,
     EventoOrdenM,
     FacturaM,
     LineaOrdenM,
@@ -27,6 +28,7 @@ from app.ports.repositorios import (
     CuentaUsuario,
     CuponRegistro,
     Destino,
+    EntregaRegistro,
     EventoOrden,
     FacturaRegistro,
     OrdenRegistro,
@@ -157,6 +159,10 @@ class PuntoVentaRepoPg(_Repo):
 
     def categorias(self):
         return list(self.s.scalars(select(PuntoVentaM.categoria).distinct().order_by(PuntoVentaM.categoria)))
+
+    def de_vendedor(self, vendedor_id):
+        filas = self.s.execute(select(PuntoVentaM, _LAT, _LON).where(PuntoVentaM.vendedor_id == vendedor_id).order_by(PuntoVentaM.id)).all()
+        return [_a_punto(*fila) for fila in filas]
 
     def cambiar_abierto(self, punto_id, abierto):
         self.s.get(PuntoVentaM, punto_id).abierto = abierto
@@ -361,6 +367,52 @@ class EventoRepoPg(_Repo):
                 .order_by(EventoOrdenM.creado_en, EventoOrdenM.id)
             )
         ]
+
+
+class EntregaRepoPg(_Repo):
+    def ordenes_disponibles(self):
+        subconsulta = select(EntregaM.orden_id).where(EntregaM.orden_id == OrdenM.id).exists()
+        filas = self.s.scalars(
+            select(OrdenM).where(
+                OrdenM.metodo_entrega == "estudiante",
+                OrdenM.estado.in_(("PAGADA", "EN_PREPARACION")),
+                ~subconsulta,
+            ).order_by(OrdenM.id)
+        )
+        return [OrdenRepoPg(self.s)._a_registro(m) for m in filas]
+
+    def por_orden(self, orden_id):
+        m = self.s.scalar(select(EntregaM).where(EntregaM.orden_id == orden_id))
+        return self._a_registro(m) if m else None
+
+    @staticmethod
+    def _a_registro(m):
+        return EntregaRegistro(m.id, m.orden_id, m.repartidor_id, m.estado, m.aceptada_en, m.recogida_en, m.entregada_en)
+
+    def agregar(self, registro):
+        m = EntregaM(orden_id=registro.orden_id, repartidor_id=registro.repartidor_id, estado=registro.estado,
+                     aceptada_en=registro.aceptada_en, recogida_en=registro.recogida_en, entregada_en=registro.entregada_en)
+        self.s.add(m)
+        try:
+            self.s.flush()
+        except IntegrityError as exc:
+            nombre = getattr(getattr(exc.orig, "diag", None), "constraint_name", None)
+            if nombre == "entregas_orden_id_key":
+                raise Conflicto("La orden ya fue aceptada por otro repartidor", "ENTREGA_YA_ACEPTADA") from exc
+            raise
+        return self._a_registro(m)
+
+    def guardar(self, registro):
+        m = self.s.get(EntregaM, registro.id)
+        if m is None:
+            raise KeyError(registro.id)
+        m.repartidor_id, m.estado = registro.repartidor_id, registro.estado
+        m.aceptada_en, m.recogida_en, m.entregada_en = registro.aceptada_en, registro.recogida_en, registro.entregada_en
+        self.s.flush()
+
+    def de_repartidor(self, repartidor_id):
+        filas = self.s.scalars(select(EntregaM).where(EntregaM.repartidor_id == repartidor_id).order_by(EntregaM.id))
+        return [self._a_registro(m) for m in filas]
 
 
 class FacturaRepoPg(_Repo):
