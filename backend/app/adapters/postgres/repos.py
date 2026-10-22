@@ -158,6 +158,10 @@ class PuntoVentaRepoPg(_Repo):
     def categorias(self):
         return list(self.s.scalars(select(PuntoVentaM.categoria).distinct().order_by(PuntoVentaM.categoria)))
 
+    def de_vendedor(self, vendedor_id):
+        filas = self.s.execute(select(PuntoVentaM, _LAT, _LON).where(PuntoVentaM.vendedor_id == vendedor_id).order_by(PuntoVentaM.id)).all()
+        return [_a_punto(*fila) for fila in filas]
+
     def cambiar_abierto(self, punto_id, abierto):
         self.s.get(PuntoVentaM, punto_id).abierto = abierto
         self.s.flush()

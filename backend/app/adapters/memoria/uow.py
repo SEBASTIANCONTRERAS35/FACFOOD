@@ -105,6 +105,9 @@ class PuntoVentaRepoMemoria(_Repo):
     def categorias(self):
         return sorted({p.categoria for p in self.d.puntos_venta.values()})
 
+    def de_vendedor(self, vendedor_id):
+        return sorted((p for p in self.d.puntos_venta.values() if p.vendedor_id == vendedor_id), key=lambda p: p.id)
+
     def cambiar_abierto(self, punto_id, abierto):
         self.d.puntos_venta[punto_id] = replace(self.d.puntos_venta[punto_id], abierto=abierto)
 
