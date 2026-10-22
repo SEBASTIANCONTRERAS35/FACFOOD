@@ -16,20 +16,20 @@ from app.vendedor.router import router as vendedor
 
 def create_app() -> FastAPI:
     config = obtener_config()
-app = FastAPI(
-        title="FACFOOD API",
-        version="0.1.0",
-        description=(
-            "Pedidos de comida dentro de Ciudad Universitaria. "
-            "Dinero siempre como texto con 2 decimales.\n\n"
-            "**Squad Kora Bits** — Negocios Electrónicos y Desarrollo Web (2027-1).\n\n"
-            "Integrantes: Emilio Sebastián Contreras Colmenero, "
-            "Luis Angel Garcés Hernández, José Arturo Ciriaco Vargas, "
-            "Diana Sofia Romero Garcia, Oscar Saldivar Pantoja y "
-            "Jose Alberto Zarco Romero."
-        ),
-        contact={"name": "Squad Kora Bits"},
-    )
+    app = FastAPI(
+            title="FACFOOD API",
+            version="0.1.0",
+            description=(
+                "Pedidos de comida dentro de Ciudad Universitaria. "
+                "Dinero siempre como texto con 2 decimales.\n\n"
+                "**Squad Kora Bits** — Negocios Electrónicos y Desarrollo Web (2027-1).\n\n"
+                "Integrantes: Emilio Sebastián Contreras Colmenero, "
+                "Luis Angel Garcés Hernández, José Arturo Ciriaco Vargas, "
+                "Diana Sofia Romero Garcia, Oscar Saldivar Pantoja y "
+                "Jose Alberto Zarco Romero."
+            ),
+            contact={"name": "Squad Kora Bits"},
+        )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(config.cors_origenes),
