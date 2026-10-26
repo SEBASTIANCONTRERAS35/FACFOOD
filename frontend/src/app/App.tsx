@@ -4,6 +4,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AvisoSinConexion, VistaPendiente } from "../components";
 import { SelectorUsuarioPrueba } from "../dev/SelectorUsuarioPrueba";
+import { Actualizacion } from "../pwa/Actualizacion";
 import { Proveedores } from "./proveedores";
 import { rutasArturo } from "./rutas-arturo";
 import { rutasSebastian } from "./rutas-sebastian";
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/cupones" element={<VistaPendiente numero="—" nombre="Cupones" responsable="el equipo" />} />
         <Route path="*" element={<VistaPendiente numero="404" nombre="Esta página no existe" responsable="nadie 🙂" />} />
       </Routes>
+      <Actualizacion />
       {import.meta.env.DEV && <SelectorUsuarioPrueba />}
     </Proveedores>
   );

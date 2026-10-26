@@ -1,0 +1,72 @@
+.instalar-app {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radio-lg);
+  background: var(--brand-gold-soft);
+  border: 1px solid var(--brand-gold);
+}
+.instalar-app img {
+  flex: none;
+  border-radius: 10px;
+}
+.instalar-app__texto {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+.instalar-app__texto strong {
+  font-size: 15px;
+}
+.instalar-app__acciones {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.instalar-app__acciones .boton {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.instalar-app__cerrar,
+.aviso-pwa button[aria-label] {
+  border: 0;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+.aviso-pwa {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 32px);
+  max-width: calc(var(--ancho-app) - 32px);
+  padding: 12px 16px;
+  border-radius: var(--radio-md);
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(13, 27, 51, 0.25);
+}
+.aviso-pwa span {
+  flex: 1;
+}
+.aviso-pwa button:not([aria-label]) {
+  border: 0;
+  border-radius: var(--radio-sm);
+  padding: 6px 12px;
+  background: var(--brand-gold);
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}

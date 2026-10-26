@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
@@ -87,5 +88,8 @@ export default defineConfig({
     }),
   ],
   server: { port: 5173 },
-  test: { environment: "jsdom" },
+  test: {
+    environment: "jsdom",
+    alias: { "virtual:pwa-register/react": fileURLToPath(new URL("./src/pwa/registro-prueba.ts", import.meta.url)) },
+  },
 });
