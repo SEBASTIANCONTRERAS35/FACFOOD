@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, ApiError } from "../../api/client";
 import { Boton, Chip, Pantalla, Tarjeta } from "../../components";
+import { InstalarApp } from "../../pwa/InstalarApp";
 import { useSesion } from "./sesion";
 import "./cuenta.css";
 
@@ -42,6 +43,7 @@ export function PerfilPage() {
           </Tarjeta>
         )}
         {error && <p className="error-campo" role="alert">{error}</p>}
+        <InstalarApp />
         <Boton variante="secundario" onClick={() => { cerrarSesion(); navegar("/login"); }}>
           Cerrar sesión
         </Boton>

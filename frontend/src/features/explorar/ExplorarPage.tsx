@@ -5,6 +5,7 @@ import { api, ApiError } from "../../api/client";
 import { Chip, Pantalla, TarjetaPuesto } from "../../components";
 import { IconoBuscar, IconoUbicacion } from "../../components/iconos";
 import { Mapa } from "../../components/Mapa";
+import { InstalarApp } from "../../pwa/InstalarApp";
 import { useUbicacion } from "./ubicacion";
 import "./explorar.css";
 
@@ -103,6 +104,7 @@ export function ExplorarPage() {
       </div>
 
       <section className="seccion explorar__lista" aria-live="polite">
+        <InstalarApp descartable />
         <h2 className="titulo-seccion">Puestos cercanos</h2>
         {error && <p className="error-campo" role="alert">{error}</p>}
         {!error && puestos === null && <p className="texto-muted">Buscando puestos…</p>}
