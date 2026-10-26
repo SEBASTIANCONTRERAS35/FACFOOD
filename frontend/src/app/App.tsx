@@ -2,7 +2,7 @@
 //   rutas-sebastian.tsx  → vistas 01–04
 //   rutas-arturo.tsx     → vistas 05–08
 import { Route, Routes } from "react-router-dom";
-import { VistaPendiente } from "../components";
+import { AvisoSinConexion, VistaPendiente } from "../components";
 import { SelectorUsuarioPrueba } from "../dev/SelectorUsuarioPrueba";
 import { Proveedores } from "./proveedores";
 import { rutasArturo } from "./rutas-arturo";
@@ -11,6 +11,7 @@ import { rutasSebastian } from "./rutas-sebastian";
 export default function App() {
   return (
     <Proveedores>
+      <AvisoSinConexion />
       <Routes>
         {rutasSebastian}
         {rutasArturo}

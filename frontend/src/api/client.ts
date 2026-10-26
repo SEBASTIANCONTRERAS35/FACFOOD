@@ -45,6 +45,7 @@ export async function api<T>(ruta: string, { method = "GET", body, signal }: Opc
     });
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
+    if (!navigator.onLine) throw new ApiError(0, "Sin conexión. Revisa tu internet e intenta de nuevo.");
     throw new ApiError(0, "No hay conexión con el servidor. ¿Está corriendo la API?");
   }
 

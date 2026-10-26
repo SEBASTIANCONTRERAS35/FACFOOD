@@ -2,6 +2,7 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 import { forwardRef } from "react";
 import { NavLink } from "react-router-dom";
+import { useEnLinea } from "../api/conexion";
 import { IconoCheck, IconoCubiertos, IconoCupon, IconoPedidos, IconoPerfil, IconoUbicacion } from "./iconos";
 
 // ---- Button (Primary / Secondary) ----
@@ -161,6 +162,17 @@ export function Pantalla(props: { children: ReactNode; nav?: boolean; barra?: Re
       </main>
       {props.barra && <div className="barra-accion">{props.barra}</div>}
       {props.nav && !props.barra && <NavInferior />}
+    </div>
+  );
+}
+
+// ---- Aviso global cuando no hay conexión (PWA) ----
+export function AvisoSinConexion() {
+  const enLinea = useEnLinea();
+  if (enLinea) return null;
+  return (
+    <div className="aviso-sin-conexion" role="status">
+      Sin conexión · mostrando datos guardados
     </div>
   );
 }

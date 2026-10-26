@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, ApiError } from "../../api/client";
+import { useEnLinea } from "../../api/conexion";
 import { pesos } from "../../api/dinero";
 import { Boton, Campo, Pantalla, Tarjeta } from "../../components";
 import { IconoAtras, IconoEstrella } from "../../components/iconos";
@@ -30,6 +31,7 @@ export function CarritoPage() {
   const [errorCupon, setErrorCupon] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const iniciado = useRef(false);
+  const enLinea = useEnLinea();
 
   // Crea la orden (o reutiliza la del carrito) al entrar.
   useEffect(() => {
@@ -121,8 +123,8 @@ export function CarritoPage() {
   const esperandoDestino = orden?.metodo_entrega === "estudiante" && !orden.destino;
   const barra = orden && (
     <>
-      <Boton onClick={pagar} cargando={ocupado} disabled={esperandoDestino}>
-        {esperandoDestino ? "Elige a dónde te lo llevamos" : `Pagar ${pesos(orden.total)}`}
+      <Boton onClick={pagar} cargando={ocupado} disabled={esperandoDestino || !enLinea}>
+        {!enLinea ? "Sin conexión: no se puede pagar" : esperandoDestino ? "Elige a dónde te lo llevamos" : `Pagar ${pesos(orden.total)}`}
       </Boton>
       <p className="carrito__nota">Pago simulado en el MVP · Recibirás tu factura al pagar</p>
     </>
@@ -193,7 +195,7 @@ export function CarritoPage() {
               <form className="carrito__cupon" onSubmit={aplicarCupon}>
                 <Campo id="cupon" placeholder="Código de cupón" value={codigo} autoCapitalize="characters"
                   onChange={(e) => { setCodigo(e.target.value); setErrorCupon(""); }} />
-                <Boton type="submit" variante="secundario" disabled={!codigo.trim() || ocupado}>Aplicar</Boton>
+                <Boton type="submit" variante="secundario" disabled={!codigo.trim() || ocupado || !enLinea}>Aplicar</Boton>
               </form>
             )}
             {errorCupon && <p className="error-campo" role="alert">{errorCupon}</p>}
