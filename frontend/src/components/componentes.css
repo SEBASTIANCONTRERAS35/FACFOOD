@@ -376,3 +376,20 @@
 .tarjeta > .chip {
   justify-self: start;
 }
+
+/* ---- Aviso sin conexión ---- */
+.aviso-sin-conexion {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  width: 100%;
+  max-width: var(--ancho-app);
+  padding: calc(6px + env(safe-area-inset-top)) 16px 6px;
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}

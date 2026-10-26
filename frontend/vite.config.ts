@@ -41,6 +41,48 @@ export default defineConfig({
         // Cualquier ruta de la app abre aunque no haya red (es una SPA).
         navigateFallback: "index.html",
         cleanupOutdatedCaches: true,
+        // Qué se guarda para usarse sin conexión. Lo que no aparece aquí (login, perfil, órdenes,
+        // pagos, entregas, panel del vendedor) SIEMPRE va a la red: son dinero y estados en vivo.
+        runtimeCaching: [
+          {
+            // Catálogo público: puestos, menú, categorías y destinos. Con red, siempre fresco;
+            // sin red (o si tarda más de 4 s), lo último guardado.
+            urlPattern: ({ url, request }) =>
+              request.method === "GET" && /^\/(puntos-venta|destinos)(\/|$)/.test(url.pathname),
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-catalogo",
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            // Mosaicos del mapa ya vistos. Se guardan al verlos; nunca se descargan por adelantado
+            // (política de uso de OpenStreetMap).
+            urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "mapa-osm",
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/,
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "fuentes-css" },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "fuentes",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

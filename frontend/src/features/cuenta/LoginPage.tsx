@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "../../api/client";
+import { useEnLinea } from "../../api/conexion";
 import { Boton, Campo, Pantalla } from "../../components";
 import { Marca } from "./Marca";
 import { useSesion } from "./sesion";
@@ -16,6 +17,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const enLinea = useEnLinea();
 
   async function enviar(e: FormEvent) {
     e.preventDefault();
@@ -44,7 +46,7 @@ export function LoginPage() {
         </div>
         {error && <p className="error-campo" role="alert">{error}</p>}
         <div className="cuenta__acciones">
-          <Boton type="submit" cargando={enviando} disabled={!correo || !password}>Iniciar sesión</Boton>
+          <Boton type="submit" cargando={enviando} disabled={!correo || !password || !enLinea}>Iniciar sesión</Boton>
           <Link to="/registro" state={{ desde }} className="boton boton--secundario cuenta__enlace-boton">
             Crear una cuenta nueva
           </Link>

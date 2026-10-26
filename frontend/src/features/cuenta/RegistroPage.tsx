@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "../../api/client";
+import { useEnLinea } from "../../api/conexion";
 import { Boton, Campo, Pantalla } from "../../components";
 import { IconoCheck } from "../../components/iconos";
 import { Marca } from "./Marca";
@@ -20,6 +21,7 @@ export function RegistroPage() {
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [general, setGeneral] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const enLinea = useEnLinea();
 
   const cambiar = (campo: keyof DatosRegistro) => (e: ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.type === "checkbox" ? e.target.checked : e.target.value;
@@ -76,7 +78,7 @@ export function RegistroPage() {
         {general && <p className="error-campo" role="alert">{general}</p>}
 
         <div className="cuenta__acciones">
-          <Boton type="submit" cargando={enviando} disabled={!datos.consentimiento_datos}>
+          <Boton type="submit" cargando={enviando} disabled={!datos.consentimiento_datos || !enLinea}>
             Crear cuenta
           </Boton>
           <Link to="/login" state={{ desde }} className="boton boton--secundario cuenta__enlace-boton">
