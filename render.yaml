@@ -1,0 +1,27 @@
+# Render Blueprint: crea la API de FACFOOD en el plan gratis.
+# En Render: New → Blueprint → elegir este repo. Ver docs/DESPLIEGUE.md.
+services:
+  - type: web
+    name: facfood-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    branch: main
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    # Aplica migraciones, carga los datos de ejemplo (solo si la base está vacía) y arranca.
+    startCommand: alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /salud
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: FACFOOD_REPOSITORIO
+        value: postgres
+      - key: DATABASE_URL # cadena de conexión de Neon (se pega a mano)
+        sync: false
+      - key: FACFOOD_CORS # dominio del frontend en Vercel, p. ej. https://facfood.vercel.app
+        sync: false
+      - key: FACFOOD_JWT_SECRETO # Render genera uno aleatorio
+        generateValue: true
+      - key: FACFOOD_PERMITIR_USUARIO_PRUEBA # en producción nadie entra como otro usuario
+        value: "false"

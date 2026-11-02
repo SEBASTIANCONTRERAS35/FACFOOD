@@ -16,6 +16,15 @@ def _bool(nombre: str, defecto: bool) -> bool:
     return valor.strip().lower() in {"1", "true", "si", "sí", "yes"}
 
 
+def normalizar_url_bd(url: str) -> str:
+    """Neon, Render y Heroku dan la URL como postgres:// o postgresql://; SQLAlchemy usaría
+    psycopg2, que no está instalado. Se fuerza el controlador psycopg (v3)."""
+    for prefijo in ("postgres://", "postgresql://"):
+        if url.startswith(prefijo):
+            return "postgresql+psycopg://" + url[len(prefijo):]
+    return url
+
+
 @dataclass(frozen=True)
 class Config:
     repositorio: str
@@ -32,9 +41,9 @@ class Config:
 def obtener_config() -> Config:
     return Config(
         repositorio=os.getenv("FACFOOD_REPOSITORIO", "memoria"),
-        database_url=os.getenv(
+        database_url=normalizar_url_bd(os.getenv(
             "DATABASE_URL", "postgresql+psycopg://facfood:facfood@localhost:5432/facfood"
-        ),
+        )),
         jwt_secreto=os.getenv("FACFOOD_JWT_SECRETO", "solo-para-desarrollo-cambiar-en-produccion"),
         jwt_horas=int(os.getenv("FACFOOD_JWT_HORAS", "24")),
         permitir_usuario_prueba=_bool("FACFOOD_PERMITIR_USUARIO_PRUEBA", True),
