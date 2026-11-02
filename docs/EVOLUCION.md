@@ -67,6 +67,18 @@ El dominio se movió a `backend/app/domain/` y alrededor se construyó la app he
 
 También se corrigieron 4 errores del ERP (`backend/tests/unit/test_erp_correcciones.py`).
 
+## MVP — Vistas 05–08 (Arturo)
+Seguimiento del pedido, panel del vendedor y modo repartidor (`backend/app/seguimiento|vendedor|entregas/`,
+`frontend/src/features/seguimiento|vendedor|repartidor/`).
+
+## PWA y despliegue
+| Qué se hizo | Dónde |
+|---|---|
+| Instalable: manifiesto, íconos y service worker (PR #5) | `frontend/vite.config.ts`, `frontend/public/` |
+| Sin conexión: catálogo, mapa y fuentes en caché; dinero siempre en red (PR #6) | `frontend/vite.config.ts`, `frontend/src/api/conexion.ts` |
+| Instalar desde la app y aviso de versión nueva (PR #7) | `frontend/src/pwa/` |
+| Hosting gratis con HTTPS: Vercel + Render + Neon (ADR 003) | `render.yaml`, `frontend/vercel.json`, `docs/DESPLIEGUE.md` |
+
 ## Siguiente
-- Vistas 05–08 (Arturo), ver `docs/CONTRATO.md`
+- Ejecutar el despliegue (`docs/DESPLIEGUE.md`)
 - Módulo SCM

@@ -1,11 +1,12 @@
 # FACFOOD
 
-Pedidos de comida dentro de Ciudad Universitaria (UNAM): los estudiantes encuentran puestos
+Pedidos de comida dentro de Ciudad Universitaria (UNAM), como app web instalable (PWA): los estudiantes encuentran puestos
 cercanos, piden para recoger o con entrega por otro estudiante, y pagan con cupones y lealtad.
 
 Proyecto del squad **Kora Bits** para Negocios Electrónicos y Desarrollo Web (2027-1).
 
-- Arquitectura: [ADR 001](ADR_001.md) y [ADR 002](ADR_002.md)
+- Arquitectura: [ADR 001](ADR_001.md), [ADR 002](ADR_002.md) y [ADR 003](ADR_003.md) (hosting)
+- Publicarla gratis con HTTPS (para instalarla en el celular): [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)
 - Contrato entre las dos mitades de la app: [docs/CONTRATO.md](docs/CONTRATO.md)
 - Diseño de las 8 pantallas: [docs/diseno/](docs/diseno/)
 - Bitácora por sprint: [docs/EVOLUCION.md](docs/EVOLUCION.md)
