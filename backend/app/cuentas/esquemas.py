@@ -1,17 +1,17 @@
 import re
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 _CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _CREDENCIAL = re.compile(r"^\d{9}$")
 
 
 class RegistroEntrada(BaseModel):
-    nombre: str
-    credencial_unam: str
-    correo: str
-    password: str
-    consentimiento_datos: bool
+    nombre: str = Field(description="De 2 a 120 caracteres", examples=["Ana López"])
+    credencial_unam: str = Field(description="Número de cuenta UNAM: 9 dígitos", examples=["320123456"])
+    correo: str = Field(description="Correo válido; se guarda en minúsculas", examples=["ana@comunidad.unam.mx"])
+    password: str = Field(description="De 8 a 72 caracteres; solo se guarda su hash (bcrypt)", examples=["segura123"])
+    consentimiento_datos: bool = Field(description="Debe ser `true` (Art. 7 LFPDPPP)", examples=[True])
 
     @field_validator("nombre")
     @classmethod

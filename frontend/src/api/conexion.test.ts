@@ -35,3 +35,22 @@ describe("conexión", () => {
     });
   });
 });
+
+describe("errores RFC 7807", () => {
+  it("expone el detalle, el código y los errores por campo", async () => {
+    const problema = {
+      type: "https://…/ERRORES.md#validacion", title: "Error de validación en los datos de entrada", status: 400,
+      detail: "Uno o más campos del payload no cumplen con las reglas establecidas.", instance: "/auth/registro",
+      codigo: "VALIDACION", invalid_params: [{ name: "credencial_unam", reason: "El número de cuenta UNAM tiene 9 dígitos" }],
+    };
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response(JSON.stringify(problema), {
+      status: 400, headers: { "Content-Type": "application/problem+json" },
+    }))));
+    await expect(api("/auth/registro", { method: "POST", body: {} })).rejects.toMatchObject({
+      status: 400,
+      codigo: "VALIDACION",
+      message: problema.detail,
+      campos: { credencial_unam: "El número de cuenta UNAM tiene 9 dígitos" },
+    });
+  });
+});

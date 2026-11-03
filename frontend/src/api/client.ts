@@ -54,24 +54,18 @@ export async function api<T>(ruta: string, { method = "GET", body, signal }: Opc
   return datos as T;
 }
 
+// Errores RFC 7807: {type, title, status, detail, instance, codigo, invalid_params?: [{name, reason}]}
+type Problema = { detail?: unknown; codigo?: string; invalid_params?: { name?: string; reason?: string }[] };
+
 function erroresPorCampo(datos: unknown): Record<string, string> {
-  const detalle = (datos as { detail?: unknown } | null)?.detail;
   const campos: Record<string, string> = {};
-  if (Array.isArray(detalle)) {
-    for (const d of detalle as { loc?: unknown[]; msg?: string }[]) {
-      const campo = d.loc?.[d.loc.length - 1];
-      if (typeof campo === "string" && d.msg) campos[campo] = d.msg.replace(/^Value error, /, "");
-    }
+  for (const p of (datos as Problema | null)?.invalid_params ?? []) {
+    if (p.name && p.reason) campos[p.name] = p.reason;
   }
   return campos;
 }
 
-// FastAPI responde {"detail": "texto"} o, si falla la validación, {"detail": [{msg, loc}, ...]}.
 function mensajeDeError(datos: unknown): string {
-  const detalle = (datos as { detail?: unknown } | null)?.detail;
-  if (typeof detalle === "string") return detalle;
-  if (Array.isArray(detalle) && detalle.length) {
-    return detalle.map((d) => String((d as { msg?: string }).msg ?? "").replace(/^Value error, /, "")).join(". ");
-  }
-  return "Algo salió mal. Intenta de nuevo.";
+  const detalle = (datos as Problema | null)?.detail;
+  return typeof detalle === "string" && detalle ? detalle : "Algo salió mal. Intenta de nuevo.";
 }
