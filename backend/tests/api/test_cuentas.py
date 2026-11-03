@@ -44,8 +44,8 @@ def test_correo_o_credencial_repetidos_dan_409(cliente):
 
 def test_validaciones_de_formato_en_espanol(cliente):
     r = cliente.post("/auth/registro", json={**NUEVO, "credencial_unam": "123", "password": "corta", "correo": "x"})
-    assert r.status_code == 422
-    mensajes = " ".join(e["msg"] for e in r.json()["detail"])
+    assert r.status_code == 400
+    mensajes = " ".join(p["reason"] for p in r.json()["invalid_params"])
     assert "9 dígitos" in mensajes and "8 caracteres" in mensajes and "correo válido" in mensajes
 
 

@@ -152,8 +152,9 @@ def test_producto_de_otro_puesto_o_puesto_cerrado(cliente):
 
 
 def test_cantidades_invalidas(cliente):
-    assert crear(cliente, lineas=((PASTOR, 0),)).status_code == 422
-    assert crear(cliente, lineas=()).status_code == 422
+    cero = crear(cliente, lineas=((PASTOR, 0),))
+    assert cero.status_code == 400 and cero.json()["invalid_params"][0]["name"] == "lineas.0.cantidad"
+    assert crear(cliente, lineas=()).status_code == 400
 
 
 def test_no_se_paga_dos_veces_ni_se_cambia_una_orden_pagada(cliente):

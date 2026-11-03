@@ -113,8 +113,11 @@ Lo devuelven los endpoints de checkout y lo usa la vista 05. **El dinero siempre
 
 ## 7. Errores
 
-Toda respuesta de error: `{"detail": "mensaje para el usuario", "codigo": "CUPON_INVALIDO"}`.
-401 sin sesión · 403 sin el rol · 404 no existe · 409 transición o estado inválido · 422 datos o regla de negocio.
+Toda respuesta de error es **RFC 7807** (`application/problem+json`): `type`, `title`, `status`,
+`detail` (mensaje para el usuario), `instance` y `codigo` (p. ej. `CUPON_INVALIDO`). Si falla la
+validación del DTO: **400** con `invalid_params: [{name, reason}]`.
+400 DTO inválido · 401 sin sesión · 403 sin el rol · 404 no existe · 409 transición o estado inválido ·
+422 regla de negocio. Ningún error repite lo que envió el usuario. Catálogo: [ERRORES.md](ERRORES.md).
 
 ## 8. Endpoints
 

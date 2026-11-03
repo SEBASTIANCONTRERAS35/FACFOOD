@@ -124,8 +124,8 @@ def test_codigo_debe_ser_cadena_de_cuatro_digitos_ascii(cliente, fabrica):
     preparar_entrega(fabrica)
     for codigo in ("123", "12A4", "12345", "".join(chr(n) for n in (0xFF11, 0xFF12, 0xFF13, 0xFF14))):
         r = cliente.post("/entregas/1/entregar", headers=como(5), json={"codigo_entrega":codigo})
-        assert r.status_code == 422
+        assert r.status_code == 400
         assert codigo not in r.text
     r = cliente.post("/entregas/1/entregar", headers=como(5), json={"codigo_entrega":1234})
-    assert r.status_code == 422
+    assert r.status_code == 400
     assert "1234" not in r.text

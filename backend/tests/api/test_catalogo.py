@@ -32,9 +32,10 @@ def test_sin_ubicacion_usa_la_facultad_de_ingenieria(cliente):
     assert cliente.get("/puntos-venta").json() == cliente.get("/puntos-venta", params=INGENIERIA).json()
 
 
-def test_coordenadas_o_radio_invalidos_dan_422(cliente):
-    assert cliente.get("/puntos-venta", params={"lat": 200}).status_code == 422
-    assert cliente.get("/puntos-venta", params={"radio": 999999}).status_code == 422
+def test_coordenadas_o_radio_invalidos_dan_400(cliente):
+    lat = cliente.get("/puntos-venta", params={"lat": 200})
+    assert lat.status_code == 400 and [p["name"] for p in lat.json()["invalid_params"]] == ["lat"]
+    assert cliente.get("/puntos-venta", params={"radio": 999999}).status_code == 400
 
 
 def test_categorias(cliente):
