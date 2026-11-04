@@ -79,6 +79,16 @@ Seguimiento del pedido, panel del vendedor y modo repartidor (`backend/app/segui
 | Instalar desde la app y aviso de versión nueva (PR #7) | `frontend/src/pwa/` |
 | Hosting gratis con HTTPS: Vercel + Render + Neon (ADR 003) | `render.yaml`, `frontend/vercel.json`, `docs/DESPLIEGUE.md` |
 
+## Mis pedidos y Cupones
+| Qué se hizo | Dónde |
+|---|---|
+| Historial del usuario (en curso y anteriores), cada pedido abre su seguimiento (PR #11) | `GET /usuarios/me/ordenes`, `frontend/src/features/pedidos/` |
+| Nivel de lealtad con avance al siguiente nivel y cupones filtrados por usuario (PR #12) | `GET /cupones`, `frontend/src/features/cupones/` |
+| Errores RFC 7807 y Swagger con el endpoint crítico documentado (PR #10) | `backend/app/shared/errores.py`, `docs/ERRORES.md` |
+
+## Despliegue
+Publicado en https://facfood.vercel.app (API en Render con PostgreSQL + PostGIS). Ver `docs/DESPLIEGUE.md`.
+
 ## Siguiente
-- Ejecutar el despliegue (`docs/DESPLIEGUE.md`)
+- Conectar Vercel y Render al repo para que cada cambio en `main` se publique solo
 - Módulo SCM

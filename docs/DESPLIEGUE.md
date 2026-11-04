@@ -95,6 +95,21 @@ Usuarios de ejemplo (todos con contraseña `facfood123`): `diana@facfood.mx` (co
   gratis es personal, compartan la sesión o transfieran el proyecto si hace falta).
 - **No subir secretos al repo:** `DATABASE_URL` y `FACFOOD_JWT_SECRETO` viven solo en Render.
 
+## 6.1 Publicar una versión nueva
+
+Si el despliegue no está conectado a GitHub, cada cambio en `main` hay que publicarlo a mano:
+
+1. **Render** → `facfood-api` → **Manual Deploy → Deploy latest commit** (rama `main`).
+   La migración y los datos de ejemplo corren solos al arrancar.
+2. **Vercel** → proyecto `facfood` → **Deployments → Redeploy** del último commit de `main`
+   (o, si se subió con la CLI: `vercel --prod` desde `frontend/` con `main` actualizado).
+3. Comprobar: `https://facfood-api.onrender.com/openapi.json` debe incluir las rutas nuevas, y la
+   app instalada mostrará "Hay una versión nueva · Actualizar".
+
+**Para no tener que hacerlo a mano** (recomendado): en Render, *Settings → Build & Deploy →
+Auto-Deploy: Yes* con el repo `SEBASTIANCONTRERAS35/FACFOOD`; en Vercel, *Settings → Git →
+Connect Git Repository* con el mismo repo y *Production Branch* = `main`.
+
 ## 7. Si algo falla
 
 | Síntoma | Causa probable | Solución |

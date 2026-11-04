@@ -127,6 +127,8 @@ validación del DTO: **400** con `invalid_params: [{name, reason}]`.
 | 02 | `GET /puntos-venta?lat=&lon=&radio=&categoria=&q=`, `GET /puntos-venta/categorias` | Sebastián |
 | 03 | `GET /puntos-venta/{id}`, `GET /puntos-venta/{id}/productos` | Sebastián |
 | 04 | `GET /destinos`, `POST /ordenes`, `PATCH /ordenes/{id}/entrega`, `POST`/`DELETE /ordenes/{id}/cupon`, `POST /ordenes/{id}/pagar` | Sebastián |
+| Mis pedidos | `GET /usuarios/me/ordenes` (resumen; sin carritos CREADA) | Sebastián |
+| Cupones | `GET /cupones` (nivel de lealtad + cupones filtrados para el usuario) | Sebastián |
 | 05 | `GET /ordenes/{id}` (orden + `eventos`), `GET /ordenes/{id}/factura` | Arturo |
 | 06 | `GET /vendedor/ordenes`, `POST /ordenes/{id}/estado`, `PATCH /puntos-venta/{id}` (abierto) | Arturo |
 | 07–08 | `GET /entregas/disponibles`, `POST /entregas/{orden_id}/aceptar`, `/recoger`, `/entregar` | Arturo |
