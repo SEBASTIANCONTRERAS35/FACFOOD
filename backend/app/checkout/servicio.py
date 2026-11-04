@@ -7,7 +7,7 @@ import secrets
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 
-from app.domain.crm.retencion import CuponInvalidoError
+from app.domain.crm.retencion import DESCUENTO_POR_NIVEL, CuponInvalidoError, nivel_lealtad, siguiente_nivel
 from app.domain.entrega import EntregaEstudiante, Pickup
 from app.domain.erp.orden import EstadoOrden, Orden
 from app.ports.repositorios import EventoOrden, FacturaRegistro, OrdenRegistro, UnidadDeTrabajo
@@ -86,6 +86,47 @@ def mis_ordenes(fabrica: FabricaUoW, actual: UsuarioActual) -> list[dict]:
                 "creada_en": r.creada_en.isoformat() if r.creada_en else None,
             })
         return resultado
+
+
+def cupones_del_usuario(fabrica: FabricaUoW, actual: UsuarioActual, hoy: date | None = None) -> dict:
+    """Nivel de lealtad y cupones que el usuario puede usar hoy (o que ya usó)."""
+    hoy = hoy or date.today()
+    with fabrica() as uow:
+        pedidos = uow.usuarios.por_id(actual.id).usuario.pedidos_completados
+        cupones = []
+        for reg in uow.cupones.listar():
+            c = reg.cupon
+            agotado = c.usos_actuales >= c.usos_maximos
+            ya_lo_uso = uow.cupones.usos_de_usuario(reg.id, actual.id) > 0
+            if ya_lo_uso and (reg.uno_por_usuario or agotado):
+                estado = "usado"
+            elif hoy > c.vigente_hasta or agotado:
+                continue  # vencido o agotado: no se muestra
+            elif reg.solo_primer_pedido and pedidos > 0:
+                continue  # el de bienvenida solo es para quien no ha completado pedidos
+            else:
+                estado = "disponible"
+            cupones.append({
+                "codigo": c.codigo, "porcentaje": float(c.porcentaje),
+                "pedido_minimo": a_texto(Decimal(str(c.pedido_minimo))),
+                "tope_descuento": a_texto(Decimal(str(c.tope_descuento))) if c.tope_descuento is not None else None,
+                "vigente_hasta": c.vigente_hasta.isoformat(),
+                "solo_primer_pedido": reg.solo_primer_pedido, "uno_por_usuario": reg.uno_por_usuario,
+                "estado": estado,
+            })
+    cupones.sort(key=lambda x: (x["estado"] != "disponible", -x["porcentaje"]))
+    nivel = nivel_lealtad(pedidos)
+    siguiente = siguiente_nivel(pedidos)
+    return {
+        "lealtad": {
+            "nivel": nivel, "descuento_pct": DESCUENTO_POR_NIVEL[nivel], "pedidos_completados": pedidos,
+            "siguiente": None if siguiente is None else {
+                "nivel": siguiente[0], "pedidos": siguiente[1], "faltan": siguiente[2],
+                "descuento_pct": DESCUENTO_POR_NIVEL[siguiente[0]],
+            },
+        },
+        "cupones": cupones,
+    }
 
 
 def destinos(fabrica: FabricaUoW) -> list[dict]:

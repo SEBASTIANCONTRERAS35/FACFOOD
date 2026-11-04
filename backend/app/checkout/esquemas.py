@@ -89,6 +89,38 @@ class OrdenResumen(BaseModel):
     creada_en: str | None
 
 
+class SiguienteNivel(BaseModel):
+    nivel: str
+    pedidos: int = Field(description="Pedidos completados con los que se alcanza")
+    faltan: int
+    descuento_pct: int
+
+
+class Lealtad(BaseModel):
+    nivel: str = Field(description="bronce, plata u oro")
+    descuento_pct: int
+    pedidos_completados: int
+    siguiente: SiguienteNivel | None = Field(description="null si ya es oro")
+
+
+class CuponDisponible(BaseModel):
+    """Lo que el usuario necesita saber del cupón. No expone los contadores internos de uso."""
+
+    codigo: str
+    porcentaje: float
+    pedido_minimo: str
+    tope_descuento: str | None
+    vigente_hasta: str
+    solo_primer_pedido: bool
+    uno_por_usuario: bool
+    estado: str = Field(description="`disponible` o `usado` (ya lo usaste)")
+
+
+class CuponesSalida(BaseModel):
+    lealtad: Lealtad
+    cupones: list[CuponDisponible]
+
+
 EJEMPLO_ORDEN = {
     "id": 5, "estado": "CREADA", "comprador_id": 1,
     "punto_venta": {"id": 1, "nombre": "Tacos Don Memo"},

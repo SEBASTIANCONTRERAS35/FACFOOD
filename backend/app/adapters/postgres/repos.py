@@ -268,6 +268,9 @@ class CuponRepoPg(_Repo):
         self.s.add(UsoCuponM(cupon_id=cupon_id, usuario_id=usuario_id, orden_id=orden_id))
         self.s.flush()
 
+    def listar(self):
+        return [_a_cupon(m) for m in self.s.scalars(select(CuponM).order_by(CuponM.id))]
+
 
 # ---- Órdenes ----
 class OrdenRepoPg(_Repo):

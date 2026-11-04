@@ -12,6 +12,7 @@ from app.checkout.esquemas import (
     EJEMPLO_ORDEN,
     CrearOrdenEntrada,
     CuponEntrada,
+    CuponesSalida,
     EntregaEntrada,
     OrdenResumen,
     OrdenSalida,
@@ -34,6 +35,18 @@ def mis_ordenes(actual: UsuarioActual = Depends(get_usuario_actual), fabrica: Fa
     """Solo los pedidos del usuario de la sesión, desde que se pagan. No incluye los carritos que no se
     pagaron (CREADA) ni datos de otros usuarios. Para el detalle y la línea de tiempo: `GET /ordenes/{id}`."""
     return servicio.mis_ordenes(fabrica, actual)
+
+
+@router.get(
+    "/cupones", response_model=CuponesSalida, tags=["Cupones"],
+    summary="Mi nivel de lealtad y los cupones que puedo usar",
+    responses={401: respuesta_error(401, "NO_AUTENTICADO", "Inicia sesión para continuar", "/cupones")},
+)
+def cupones(actual: UsuarioActual = Depends(get_usuario_actual), fabrica: FabricaUoW = Depends(obtener_fabrica_uow)):
+    """Filtrado para el usuario de la sesión: oculta los vencidos y agotados, el de bienvenida solo aparece
+    a quien no ha completado pedidos, y los de un uso por persona que ya usó salen como `usado`.
+    El DTO no expone los contadores internos de uso del cupón."""
+    return servicio.cupones_del_usuario(fabrica, actual)
 
 
 @router.get("/destinos", response_model=list[Ref], summary="Facultades y edificios para la entrega")

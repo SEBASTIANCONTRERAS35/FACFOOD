@@ -61,14 +61,24 @@ class Cupon:
 
 # ---- Lealtad ----
 DESCUENTO_POR_NIVEL = {"bronce": 0, "plata": 5, "oro": 10}
+PEDIDOS_POR_NIVEL = {"bronce": 0, "plata": 3, "oro": 10}
 
 
 def nivel_lealtad(pedidos_completados: int) -> str:
-    if pedidos_completados >= 10:
+    if pedidos_completados >= PEDIDOS_POR_NIVEL["oro"]:
         return "oro"
-    if pedidos_completados >= 3:
+    if pedidos_completados >= PEDIDOS_POR_NIVEL["plata"]:
         return "plata"
     return "bronce"
+
+
+def siguiente_nivel(pedidos_completados: int) -> tuple[str, int, int] | None:
+    """(nivel siguiente, pedidos con los que se alcanza, cuántos faltan); None si ya es oro."""
+    for nivel in ("plata", "oro"):
+        umbral = PEDIDOS_POR_NIVEL[nivel]
+        if pedidos_completados < umbral:
+            return nivel, umbral, umbral - pedidos_completados
+    return None
 
 
 def descuento_lealtad(subtotal: float, pedidos_completados: int) -> float:
