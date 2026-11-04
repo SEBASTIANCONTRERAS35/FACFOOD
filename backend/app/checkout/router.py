@@ -13,6 +13,7 @@ from app.checkout.esquemas import (
     CrearOrdenEntrada,
     CuponEntrada,
     EntregaEntrada,
+    OrdenResumen,
     OrdenSalida,
     PagoEntrada,
     Ref,
@@ -22,6 +23,17 @@ from app.shared.errores import respuesta_error
 from app.shared.uow import FabricaUoW, obtener_fabrica_uow
 
 router = APIRouter(tags=["Checkout"])
+
+
+@router.get(
+    "/usuarios/me/ordenes", response_model=list[OrdenResumen], tags=["Mis pedidos"],
+    summary="Mis pedidos, del más reciente al más antiguo",
+    responses={401: respuesta_error(401, "NO_AUTENTICADO", "Inicia sesión para continuar", "/usuarios/me/ordenes")},
+)
+def mis_ordenes(actual: UsuarioActual = Depends(get_usuario_actual), fabrica: FabricaUoW = Depends(obtener_fabrica_uow)):
+    """Solo los pedidos del usuario de la sesión, desde que se pagan. No incluye los carritos que no se
+    pagaron (CREADA) ni datos de otros usuarios. Para el detalle y la línea de tiempo: `GET /ordenes/{id}`."""
+    return servicio.mis_ordenes(fabrica, actual)
 
 
 @router.get("/destinos", response_model=list[Ref], summary="Facultades y edificios para la entrega")

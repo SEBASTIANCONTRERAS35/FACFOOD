@@ -7,6 +7,7 @@ import { RegistroPage } from "../features/cuenta/RegistroPage";
 import { RequiereSesion } from "../features/cuenta/sesion";
 import { ExplorarPage } from "../features/explorar/ExplorarPage";
 import { MenuPage } from "../features/menu/MenuPage";
+import { PedidosPage } from "../features/pedidos/PedidosPage";
 
 export const rutasSebastian = (
   <>
@@ -17,5 +18,6 @@ export const rutasSebastian = (
     <Route path="/explorar" element={<ExplorarPage />} />
     <Route path="/puesto/:id" element={<MenuPage />} />
     <Route path="/carrito" element={<RequiereSesion><CarritoPage /></RequiereSesion>} />
+    <Route path="/pedidos" element={<RequiereSesion><PedidosPage /></RequiereSesion>} />
   </>
 );

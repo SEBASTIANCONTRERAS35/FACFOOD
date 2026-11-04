@@ -1,0 +1,90 @@
+.pedidos {
+  padding-top: 52px;
+}
+.pedidos__titulo {
+  font-size: 24px;
+  font-weight: 700;
+}
+.pedidos__lista {
+  display: grid;
+  gap: 10px;
+}
+.pedidos__vacio {
+  display: grid;
+  gap: 12px;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+.pedidos__enlace {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+.pedido {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radio-lg);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  text-align: left;
+  cursor: pointer;
+}
+.pedido:focus-visible {
+  outline: 3px solid var(--brand-navy-700);
+  outline-offset: 2px;
+}
+.pedido__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radio-md);
+  background: var(--brand-gold-soft);
+  color: var(--brand-gold);
+}
+.pedido__info {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.pedido__puesto {
+  font-size: 15px;
+  font-weight: 600;
+}
+.pedido__detalle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.pedido__lado {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+.pedido__estado {
+  padding: 3px 10px;
+  border-radius: var(--radio-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--brand-gold-soft);
+  color: var(--text-primary);
+}
+.pedido__estado--en_preparacion,
+.pedido__estado--enviada {
+  background: var(--brand-navy);
+  color: var(--text-on-dark);
+}
+.pedido__estado--entregada {
+  background: var(--status-success-soft);
+  color: var(--status-success);
+}
+.pedido__total {
+  font-size: 15px;
+  font-weight: 700;
+}

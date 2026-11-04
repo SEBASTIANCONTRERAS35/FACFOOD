@@ -13,6 +13,7 @@ from app.domain.erp.orden import EstadoOrden, Orden
 from app.ports.repositorios import EventoOrden, FacturaRegistro, OrdenRegistro, UnidadDeTrabajo
 from app.shared.auth import UsuarioActual
 from app.shared.errores import Conflicto, DatosInvalidos, NoEncontrado
+from app.shared.dinero import a_texto
 from app.shared.presentacion import orden_a_json
 from app.shared.uow import FabricaUoW
 
@@ -63,6 +64,28 @@ def _validar_cupon_para(uow: UnidadDeTrabajo, cupon_reg, actual: UsuarioActual, 
         raise CuponInvalidoError("Este cupón es solo para tu primer pedido")
     if cupon_reg.uno_por_usuario and uow.cupones.usos_de_usuario(cupon_reg.id, actual.id) > 0:
         raise CuponInvalidoError("Ya usaste este cupón")
+
+
+# Los pedidos CREADA (carritos que no se pagaron) y CANCELADA no son pedidos para el usuario.
+ESTADOS_VISIBLES = {EstadoOrden.PAGADA, EstadoOrden.EN_PREPARACION, EstadoOrden.ENVIADA, EstadoOrden.ENTREGADA}
+
+
+def mis_ordenes(fabrica: FabricaUoW, actual: UsuarioActual) -> list[dict]:
+    with fabrica() as uow:
+        resultado = []
+        for r in uow.ordenes.de_comprador(actual.id):
+            if r.orden.estado not in ESTADOS_VISIBLES:
+                continue
+            punto = uow.puntos_venta.por_id(r.punto_venta_id)
+            resultado.append({
+                "id": r.id, "estado": r.orden.estado.value,
+                "punto_venta": {"id": punto.id, "nombre": punto.nombre},
+                "metodo_entrega": r.metodo_entrega,
+                "piezas": sum(l.cantidad for l in r.orden.lineas),
+                "total": a_texto(r.orden.total),
+                "creada_en": r.creada_en.isoformat() if r.creada_en else None,
+            })
+        return resultado
 
 
 def destinos(fabrica: FabricaUoW) -> list[dict]:

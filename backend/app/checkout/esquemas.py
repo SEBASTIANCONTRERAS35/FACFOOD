@@ -77,6 +77,18 @@ class OrdenSalida(BaseModel):
     creada_en: str | None
 
 
+class OrdenResumen(BaseModel):
+    """Un pedido en la lista de "Mis pedidos". El detalle completo está en GET /ordenes/{id}."""
+
+    id: int
+    estado: str
+    punto_venta: Ref
+    metodo_entrega: str
+    piezas: int = Field(description="Total de productos del pedido")
+    total: str
+    creada_en: str | None
+
+
 EJEMPLO_ORDEN = {
     "id": 5, "estado": "CREADA", "comprador_id": 1,
     "punto_venta": {"id": 1, "nombre": "Tacos Don Memo"},

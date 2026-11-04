@@ -39,6 +39,7 @@ def create_app() -> FastAPI:
             {"name": "Cuentas", "description": "Registro (LFPDPPP), login con JWT y perfil dual · vista 01"},
             {"name": "Catálogo", "description": "Puestos cercanos con PostGIS y menú · vistas 02 y 03"},
             {"name": "Checkout", "description": "Orden, cupón o lealtad, entrega (Strategy) y pago · vista 04"},
+            {"name": "Mis pedidos", "description": "Historial de pedidos del usuario"},
             {"name": "Seguimiento", "description": "Estado del pedido y factura · vista 05"},
             {"name": "Vendedor", "description": "Panel del puesto · vista 06"},
             {"name": "Entregas", "description": "Modo repartidor · vistas 07 y 08"},
