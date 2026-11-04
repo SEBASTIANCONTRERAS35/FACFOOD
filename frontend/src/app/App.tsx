@@ -16,7 +16,6 @@ export default function App() {
       <Routes>
         {rutasSebastian}
         {rutasArturo}
-        <Route path="/cupones" element={<VistaPendiente numero="—" nombre="Cupones" responsable="el equipo" />} />
         <Route path="*" element={<VistaPendiente numero="404" nombre="Esta página no existe" responsable="nadie 🙂" />} />
       </Routes>
       <Actualizacion />

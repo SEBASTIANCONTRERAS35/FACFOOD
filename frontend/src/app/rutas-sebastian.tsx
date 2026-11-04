@@ -1,6 +1,7 @@
 // Vistas 01–04 · Sebastián
 import { Navigate, Route } from "react-router-dom";
 import { CarritoPage } from "../features/carrito/CarritoPage";
+import { CuponesPage } from "../features/cupones/CuponesPage";
 import { LoginPage } from "../features/cuenta/LoginPage";
 import { PerfilPage } from "../features/cuenta/PerfilPage";
 import { RegistroPage } from "../features/cuenta/RegistroPage";
@@ -19,5 +20,6 @@ export const rutasSebastian = (
     <Route path="/puesto/:id" element={<MenuPage />} />
     <Route path="/carrito" element={<RequiereSesion><CarritoPage /></RequiereSesion>} />
     <Route path="/pedidos" element={<RequiereSesion><PedidosPage /></RequiereSesion>} />
+    <Route path="/cupones" element={<RequiereSesion><CuponesPage /></RequiereSesion>} />
   </>
 );

@@ -167,6 +167,9 @@ class CuponRepoMemoria(_Repo):
     def registrar_uso(self, cupon_id, usuario_id, orden_id):
         self.d.usos_cupon.append((cupon_id, usuario_id, orden_id))
 
+    def listar(self):
+        return [copy.deepcopy(r) for r in sorted(self.d.cupones.values(), key=lambda r: r.id)]
+
 
 class OrdenRepoMemoria(_Repo):
     def agregar(self, registro):

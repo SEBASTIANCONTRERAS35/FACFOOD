@@ -40,6 +40,7 @@ def create_app() -> FastAPI:
             {"name": "Catálogo", "description": "Puestos cercanos con PostGIS y menú · vistas 02 y 03"},
             {"name": "Checkout", "description": "Orden, cupón o lealtad, entrega (Strategy) y pago · vista 04"},
             {"name": "Mis pedidos", "description": "Historial de pedidos del usuario"},
+            {"name": "Cupones", "description": "Nivel de lealtad y cupones disponibles para el usuario"},
             {"name": "Seguimiento", "description": "Estado del pedido y factura · vista 05"},
             {"name": "Vendedor", "description": "Panel del puesto · vista 06"},
             {"name": "Entregas", "description": "Modo repartidor · vistas 07 y 08"},
