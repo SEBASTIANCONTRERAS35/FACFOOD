@@ -353,11 +353,11 @@ class OrdenRepoPg(_Repo):
             for m in self.s.scalars(select(OrdenM).where(OrdenM.punto_venta_id == punto_id).order_by(OrdenM.id))
         ]
 
-    def de_comprador(self, usuario_id, limite=50):
-        consulta = (
-            select(OrdenM).where(OrdenM.comprador_id == usuario_id)
-            .order_by(OrdenM.creada_en.desc(), OrdenM.id.desc()).limit(limite)
-        )
+    def de_comprador(self, usuario_id, estados=None, limite=50):
+        consulta = select(OrdenM).where(OrdenM.comprador_id == usuario_id)
+        if estados is not None:
+            consulta = consulta.where(OrdenM.estado.in_(sorted(estados)))
+        consulta = consulta.order_by(OrdenM.creada_en.desc(), OrdenM.id.desc()).limit(limite)
         return [self._a_registro(m) for m in self.s.scalars(consulta)]
 
 

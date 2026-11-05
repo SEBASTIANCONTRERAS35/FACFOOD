@@ -73,9 +73,9 @@ ESTADOS_VISIBLES = {EstadoOrden.PAGADA, EstadoOrden.EN_PREPARACION, EstadoOrden.
 def mis_ordenes(fabrica: FabricaUoW, actual: UsuarioActual) -> list[dict]:
     with fabrica() as uow:
         resultado = []
-        for r in uow.ordenes.de_comprador(actual.id):
-            if r.orden.estado not in ESTADOS_VISIBLES:
-                continue
+        # El filtro va en la consulta: si se filtrara después del límite, muchos carritos
+        # abandonados (CREADA) desplazarían a los pedidos reales fuera de la lista.
+        for r in uow.ordenes.de_comprador(actual.id, estados={e.value for e in ESTADOS_VISIBLES}):
             punto = uow.puntos_venta.por_id(r.punto_venta_id)
             resultado.append({
                 "id": r.id, "estado": r.orden.estado.value,
