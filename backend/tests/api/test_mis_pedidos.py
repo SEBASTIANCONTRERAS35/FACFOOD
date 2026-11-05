@@ -28,6 +28,12 @@ def test_los_carritos_sin_pagar_no_aparecen(cliente):
     assert cliente.get("/usuarios/me/ordenes", headers=como(DIANA)).json()[0]["id"] == creada["id"]
 
 
+def test_muchos_carritos_abandonados_no_ocultan_los_pedidos(cliente):
+    for _ in range(55):  # más que el límite de la lista
+        cliente.post("/ordenes", headers=como(DIANA), json={"punto_venta_id": 1, "lineas": [{"producto_id": 1, "cantidad": 1}]})
+    assert [o["id"] for o in cliente.get("/usuarios/me/ordenes", headers=como(DIANA)).json()] == [3, 1]
+
+
 def test_sin_sesion_no_hay_pedidos(cliente):
     r = cliente.get("/usuarios/me/ordenes")
     assert r.status_code == 401 and r.json()["codigo"] == "NO_AUTENTICADO"

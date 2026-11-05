@@ -192,8 +192,11 @@ class OrdenRepoMemoria(_Repo):
             if r.punto_venta_id == punto_id
         ]
 
-    def de_comprador(self, usuario_id, limite=50):
-        propias = [r for r in self.d.ordenes.values() if r.comprador_id == usuario_id]
+    def de_comprador(self, usuario_id, estados=None, limite=50):
+        propias = [
+            r for r in self.d.ordenes.values()
+            if r.comprador_id == usuario_id and (estados is None or r.orden.estado.value in estados)
+        ]
         propias.sort(key=lambda r: (r.creada_en, r.id), reverse=True)
         return [copy.deepcopy(r) for r in propias[:limite]]
 
