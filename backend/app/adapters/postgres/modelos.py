@@ -209,6 +209,7 @@ class PagoM(Base):
     estado: Mapped[str] = mapped_column(String(20), default="PENDIENTE")
     url: Mapped[str | None] = mapped_column(Text)
     expira_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    rfc: Mapped[str | None] = mapped_column(String(13))
     evento_id: Mapped[str | None] = mapped_column(String(255))
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     actualizado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

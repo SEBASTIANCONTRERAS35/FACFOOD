@@ -24,6 +24,7 @@ def upgrade():
         sa.Column("estado", sa.String(20), nullable=False),
         sa.Column("url", sa.Text(), nullable=True),
         sa.Column("expira_en", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("rfc", sa.String(13), nullable=True),
         sa.Column("evento_id", sa.String(255), nullable=True),
         sa.Column("creado_en", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column("actualizado_en", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),

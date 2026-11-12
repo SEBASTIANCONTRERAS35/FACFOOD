@@ -11,6 +11,7 @@ import { IconoAtras, IconoEstrella } from "../../components/iconos";
 import { useSesion } from "../cuenta/sesion";
 import type { PuntoVenta } from "../explorar/ExplorarPage";
 import { useCarrito } from "./carrito";
+import type { SesionPago } from "./pago";
 import type { Orden } from "./tipos";
 import "./carrito.css";
 
@@ -32,6 +33,7 @@ export function CarritoPage() {
   const [ocupado, setOcupado] = useState(false);
   const iniciado = useRef(false);
   const enLinea = useEnLinea();
+  const [pasarela, setPasarela] = useState<"simulado" | "stripe" | null>(null);
 
   // Crea la orden (o reutiliza la del carrito) al entrar.
   useEffect(() => {
@@ -46,8 +48,23 @@ export function CarritoPage() {
           metodo_entrega: "pickup",
         },
       });
+    const reutilizar = (id: number) => {
+      const patch = () => api<Orden>(`/ordenes/${id}/entrega`, { method: "PATCH", body: { metodo_entrega: "pickup" } });
+      // Si quedó un pago con tarjeta abierto (salió de Stripe sin pagar), se cierra para poder editar.
+      return patch().catch((e: ApiError) =>
+        e.codigo === "PAGO_EN_CURSO"
+          ? api<Orden>(`/ordenes/${id}/checkout`, { method: "DELETE" }).then(patch)
+          : Promise.reject(e),
+      );
+    };
     const existente = carrito.ordenId
-      ? api<Orden>(`/ordenes/${carrito.ordenId}/entrega`, { method: "PATCH", body: { metodo_entrega: "pickup" } }).catch(crear)
+      ? reutilizar(carrito.ordenId).catch((e: ApiError) => {
+          if (e.codigo === "PAGO_YA_REALIZADO") {
+            navegar(`/pedido/${carrito.ordenId}/pago?resultado=exito`, { replace: true });
+            return new Promise<Orden>(() => {});
+          }
+          return crear();
+        })
       : crear();
     existente
       .then((o) => {
@@ -57,7 +74,8 @@ export function CarritoPage() {
       .catch((e) => setError((e as ApiError).message));
     api<PuntoVenta>(`/puntos-venta/${carrito.punto.id}`).then(setPunto).catch(() => setPunto(null));
     api<Destino[]>("/destinos").then(setDestinos).catch(() => setDestinos([]));
-  }, [carrito, despachar]);
+    api<{ pasarela?: "simulado" | "stripe" }>("/salud").then((s) => setPasarela(s.pasarela ?? null)).catch(() => {});
+  }, [carrito, despachar, navegar]);
 
   async function accion(promesa: Promise<Orden>, alFallar: (m: string) => void = setError) {
     setOcupado(true);
@@ -99,7 +117,14 @@ export function CarritoPage() {
     setOcupado(true);
     setError("");
     try {
-      const pagada = await api<Orden>(`/ordenes/${orden.id}/pagar`, { method: "POST", body: { rfc: pedirRfc && rfc.trim() ? rfc.trim() : null } });
+      const datos = { rfc: pedirRfc && rfc.trim() ? rfc.trim() : null };
+      // El servidor fija el monto. Con Stripe devuelve la página de pago; con el simulado, url es null.
+      const sesion = await api<SesionPago>(`/ordenes/${orden.id}/checkout`, { method: "POST", body: datos });
+      if (sesion.url) {
+        window.location.assign(sesion.url);
+        return; // se queda "cargando" mientras el navegador sale hacia Stripe
+      }
+      const pagada = await api<Orden>(`/ordenes/${orden.id}/pagar`, { method: "POST", body: datos });
       despachar({ tipo: "vaciar" });
       navegar(`/pedido/${pagada.id}`, { replace: true });
     } catch (e) {
@@ -126,7 +151,11 @@ export function CarritoPage() {
       <Boton onClick={pagar} cargando={ocupado} disabled={esperandoDestino || !enLinea}>
         {!enLinea ? "Sin conexión: no se puede pagar" : esperandoDestino ? "Elige a dónde te lo llevamos" : `Pagar ${pesos(orden.total)}`}
       </Boton>
-      <p className="carrito__nota">Pago simulado en el MVP · Recibirás tu factura al pagar</p>
+      <p className="carrito__nota">
+        {pasarela === "stripe"
+          ? "Pago seguro con tarjeta vía Stripe (modo de prueba) · Recibirás tu factura al pagar"
+          : "Pago simulado · Recibirás tu factura al pagar"}
+      </p>
     </>
   );
 

@@ -431,7 +431,7 @@ class EntregaRepoPg(_Repo):
 def _a_pago(m: PagoM) -> PagoRegistro:
     return PagoRegistro(
         id=m.id, orden_id=m.orden_id, proveedor=m.proveedor, referencia=m.referencia, monto=Decimal(m.monto),
-        estado=m.estado, url=m.url, expira_en=m.expira_en, evento_id=m.evento_id,
+        estado=m.estado, url=m.url, expira_en=m.expira_en, rfc=m.rfc, evento_id=m.evento_id,
         creado_en=m.creado_en, actualizado_en=m.actualizado_en,
     )
 
@@ -441,7 +441,7 @@ class PagoRepoPg(_Repo):
         m = PagoM(
             orden_id=registro.orden_id, proveedor=registro.proveedor, referencia=registro.referencia,
             monto=registro.monto, estado=registro.estado, url=registro.url, expira_en=registro.expira_en,
-            evento_id=registro.evento_id,
+            rfc=registro.rfc, evento_id=registro.evento_id,
         )
         self.s.add(m)
         try:

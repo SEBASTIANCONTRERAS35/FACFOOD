@@ -228,3 +228,19 @@ def test_una_orden_pagada_no_abre_otro_cobro(cliente, pasarela):
 def test_el_checkout_requiere_sesion(cliente, pasarela):
     o = crear(cliente).json()
     assert cliente.post(f"/ordenes/{o['id']}/checkout").status_code == 401
+
+
+def test_el_rfc_viaja_con_el_pago_y_se_valida_antes_de_cobrar(cliente, fabrica, pasarela):
+    o = crear(cliente).json()
+    r = cliente.post(f"/ordenes/{o['id']}/checkout", headers=como(DIANA), json={"rfc": "MAL"})
+    assert r.status_code == 422 and r.json()["codigo"] == "RFC_INVALIDO" and "MAL" not in r.json()["detail"]
+    assert pasarela.sesiones == {}
+
+    cliente.post(f"/ordenes/{o['id']}/checkout", headers=como(DIANA), json={"rfc": "romd010203ab1"})
+    avisar(cliente, pasarela.aviso(pasarela.ultima()))
+    with fabrica() as uow:
+        assert uow.facturas.de_orden(o["id"]).factura.rfc_receptor == "ROMD010203AB1"
+
+
+def test_salud_dice_que_pasarela_esta_activa(cliente):
+    assert cliente.get("/salud").json()["pasarela"] == "simulado"

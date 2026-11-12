@@ -25,6 +25,7 @@ class PagoRegistro:
     estado: str = "PENDIENTE"
     url: str | None = None
     expira_en: datetime | None = None
+    rfc: str | None = None  # para la factura; None = público en general
     evento_id: str | None = None  # último evento de la pasarela que cambió el estado
     creado_en: datetime | None = None
     actualizado_en: datetime | None = None

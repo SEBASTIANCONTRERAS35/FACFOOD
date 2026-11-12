@@ -76,7 +76,7 @@ def create_app() -> FastAPI:
 
     @app.get("/salud", tags=["Sistema"])
     def salud():
-        return {"estado": "ok", "repositorio": config.repositorio}
+        return {"estado": "ok", "repositorio": config.repositorio, "pasarela": config.pasarela}
 
     documentar_errores(app)
     return app

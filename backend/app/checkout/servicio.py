@@ -10,6 +10,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from app.domain.crm.retencion import DESCUENTO_POR_NIVEL, CuponInvalidoError, nivel_lealtad, siguiente_nivel
 from app.domain.entrega import EntregaEstudiante, Pickup
+from app.domain.erp.factura import validar_rfc
 from app.domain.erp.orden import EstadoOrden, Orden
 from app.ports.pagos import EventoDePago, PagoRegistro, PasarelaDePago, PasarelaNoDisponible
 from app.ports.repositorios import EventoOrden, FacturaRegistro, OrdenRegistro, UnidadDeTrabajo
@@ -293,7 +294,7 @@ def _cerrar_sesion(pasarela: PasarelaDePago, pago: PagoRegistro) -> None:
 
 
 def iniciar_pago(fabrica: FabricaUoW, pasarela: PasarelaDePago, actual: UsuarioActual, orden_id: int,
-                 url_frontend: str) -> dict:
+                 url_frontend: str, rfc: str | None = None) -> dict:
     """Abre el cobro de la orden en la pasarela con el monto que calcula el servidor.
 
     Con el simulado solo devuelve el monto (el cliente sigue con POST /pagar). Con Stripe crea la
@@ -316,11 +317,13 @@ def iniciar_pago(fabrica: FabricaUoW, pasarela: PasarelaDePago, actual: UsuarioA
             _cerrar_sesion(pasarela, pendiente)  # vencida o a punto de vencer: se abre otra
             uow.pagos.guardar(pendiente)
 
+        rfc = validar_rfc(rfc) if rfc and rfc.strip() else None  # antes de cobrar, no al recibir el aviso
         _preparar_cobro(uow, registro, actual)
         uow.ordenes.guardar(registro)  # el monto que se cobra es el que queda guardado
         monto = registro.orden.total
         expira = ahora + VIGENCIA_PAGO + timedelta(minutes=1)
-        pago = uow.pagos.agregar(PagoRegistro(None, orden_id, pasarela.nombre, None, monto, expira_en=expira))
+        pago = uow.pagos.agregar(PagoRegistro(None, orden_id, pasarela.nombre, None, monto, expira_en=expira,
+                                             rfc=rfc))
         punto = uow.puntos_venta.por_id(registro.punto_venta_id)
         cuenta = uow.usuarios.por_id(actual.id)
         try:
@@ -388,7 +391,7 @@ def procesar_evento(fabrica: FabricaUoW, pasarela: PasarelaDePago, evento: Event
             cuenta = uow.usuarios.por_id(registro.comprador_id)
             cupon_reg = uow.cupones.por_id(registro.cupon_id, bloquear=True) if registro.cupon_id else None
             consumido = orden.confirmar_cobro(cupon_reg.cupon if cupon_reg else None)
-            _cerrar_como_pagada(uow, registro, cuenta, cupon_reg, consumido, None)
+            _cerrar_como_pagada(uow, registro, cuenta, cupon_reg, consumido, pago.rfc)
         else:
             # No debería pasar (la orden no se puede editar con un pago en curso): se cobró, pero
             # la orden cambió. Queda registrado para revisarlo y reembolsar a mano.

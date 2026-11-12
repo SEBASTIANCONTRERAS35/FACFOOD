@@ -27,6 +27,7 @@ Todas existen desde la migración `0001_esquema_base`.
 | `ordenes`, `lineas_orden` | Sebastián: **CREADA → PAGADA**. Arturo: **PAGADA → … → ENTREGADA** | ambos |
 | `orden_eventos` | cada quien registra las transiciones de su tramo | Arturo (línea de tiempo) |
 | `facturas` | Sebastián (se genera **al pagar**) | Arturo (descarga) |
+| `pagos` | Sebastián (checkout y webhook) | — |
 | `entregas` | Arturo | — |
 
 ## 3. Estados de la orden
@@ -126,12 +127,14 @@ validación del DTO: **400** con `invalid_params: [{name, reason}]`.
 | 01 | `POST /auth/registro`, `POST /auth/login`, `GET /usuarios/me`, `POST /usuarios/me/vendedor` | Sebastián |
 | 02 | `GET /puntos-venta?lat=&lon=&radio=&categoria=&q=`, `GET /puntos-venta/categorias` | Sebastián |
 | 03 | `GET /puntos-venta/{id}`, `GET /puntos-venta/{id}/productos` | Sebastián |
-| 04 | `GET /destinos`, `POST /ordenes`, `PATCH /ordenes/{id}/entrega`, `POST`/`DELETE /ordenes/{id}/cupon`, `POST /ordenes/{id}/pagar` | Sebastián |
+| 04 | `GET /destinos`, `POST /ordenes`, `PATCH /ordenes/{id}/entrega`, `POST`/`DELETE /ordenes/{id}/cupon`, `POST /ordenes/{id}/pagar` (solo simulado) | Sebastián |
+| Pagos | `POST`/`DELETE /ordenes/{id}/checkout`, `POST /pagos/webhook` (Stripe, firmado) · [ADR 004](../ADR_004.md) | Sebastián |
 | Mis pedidos | `GET /usuarios/me/ordenes` (resumen; sin carritos CREADA) | Sebastián |
 | Cupones | `GET /cupones` (nivel de lealtad + cupones filtrados para el usuario) | Sebastián |
 | 05 | `GET /ordenes/{id}` (orden + `eventos`), `GET /ordenes/{id}/factura` | Arturo |
 | 06 | `GET /vendedor/ordenes`, `POST /ordenes/{id}/estado`, `PATCH /puntos-venta/{id}` (abierto) | Arturo |
 | 07–08 | `GET /entregas/disponibles`, `POST /entregas/{orden_id}/aceptar`, `/recoger`, `/entregar` | Arturo |
 
-Al pagar, la vista 04 navega a `/pedido/{id}` (vista 05): es el único punto donde se tocan
+Al pagar, la vista 04 navega a `/pedido/{id}` (vista 05); con Stripe pasa antes por `/pedido/{id}/pago`, que espera
+la confirmación del webhook. Es el único punto donde se tocan
 los frontends de los dos.

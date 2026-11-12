@@ -163,7 +163,7 @@ def pagar(orden_id: int, datos: PagoEntrada | None = None, actual: UsuarioActual
                              "/ordenes/5/checkout"),
     },
 )
-def iniciar_pago(orden_id: int, actual: UsuarioActual = Depends(get_usuario_actual),
+def iniciar_pago(orden_id: int, datos: PagoEntrada | None = None, actual: UsuarioActual = Depends(get_usuario_actual),
                  fabrica: FabricaUoW = Depends(obtener_fabrica_uow),
                  pasarela: PasarelaDePago = Depends(obtener_pasarela)):
     """Revalida todo (puesto abierto, lealtad, cupón) y fija el monto. Con **stripe** crea una sesión de
@@ -172,7 +172,8 @@ def iniciar_pago(orden_id: int, actual: UsuarioActual = Depends(get_usuario_actu
     devuelve `url: null` y el pago se confirma con `POST /ordenes/{id}/pagar`.
 
     La orden pasa a PAGADA cuando Stripe avisa al webhook, no cuando el navegador regresa."""
-    return servicio.iniciar_pago(fabrica, pasarela, actual, orden_id, obtener_config().url_frontend)
+    return servicio.iniciar_pago(fabrica, pasarela, actual, orden_id, obtener_config().url_frontend,
+                                 datos.rfc if datos else None)
 
 
 @router.delete(

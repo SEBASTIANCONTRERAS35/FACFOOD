@@ -5,7 +5,7 @@ cercanos, piden para recoger o con entrega por otro estudiante, y pagan con cupo
 
 Proyecto del squad **Kora Bits** para Negocios Electrónicos y Desarrollo Web (2027-1).
 
-- Arquitectura: [ADR 001](ADR_001.md), [ADR 002](ADR_002.md) y [ADR 003](ADR_003.md) (hosting)
+- Arquitectura: [ADR 001](ADR_001.md), [ADR 002](ADR_002.md) y [ADR 003](ADR_003.md) (hosting) y [ADR 004](ADR_004.md) (pagos)
 - Publicarla gratis con HTTPS (para instalarla en el celular): [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)
 - Contrato entre las dos mitades de la app: [docs/CONTRATO.md](docs/CONTRATO.md)
 - Diseño de las 8 pantallas: [docs/diseno/](docs/diseno/)
