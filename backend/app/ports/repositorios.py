@@ -17,6 +17,7 @@ from app.domain.crm.retencion import Cupon
 from app.domain.erp.factura import Factura
 from app.domain.erp.orden import Orden
 from app.domain.usuario import Usuario
+from app.ports.pagos import PagoRepo
 
 ROLES = ("comprador", "vendedor", "repartidor")
 METODOS_ENTREGA = ("pickup", "estudiante")
@@ -203,6 +204,7 @@ class UnidadDeTrabajo(Protocol):
     eventos: EventoRepo
     facturas: FacturaRepo
     entregas: EntregaRepo
+    pagos: PagoRepo
 
     def __enter__(self) -> "UnidadDeTrabajo": ...
     def __exit__(self, *exc) -> None: ...

@@ -16,7 +16,7 @@ from app.seed import cargar_datos_ejemplo
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-TABLAS = ("entregas, facturas, orden_eventos, usos_cupon, lineas_orden, ordenes, "
+TABLAS = ("pagos, entregas, facturas, orden_eventos, usos_cupon, lineas_orden, ordenes, "
           "cupones, destinos, productos, puntos_venta, usuarios")
 
 

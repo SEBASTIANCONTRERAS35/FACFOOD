@@ -25,3 +25,13 @@ services:
         generateValue: true
       - key: FACFOOD_PERMITIR_USUARIO_PRUEBA # en producción nadie entra como otro usuario
         value: "false"
+      # Pagos (ADR 004). Se deja en simulado hasta cargar las dos llaves de Stripe; con "stripe"
+      # y sin llaves la API no arranca (a propósito: nunca se recibe un aviso sin verificar firma).
+      - key: FACFOOD_PASARELA
+        value: simulado
+      - key: STRIPE_SECRET_KEY # sk_test_... del panel de Stripe (modo de prueba)
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET # whsec_... del endpoint https://facfood-api.onrender.com/pagos/webhook
+        sync: false
+      - key: FACFOOD_URL_FRONTEND # a dónde regresa Stripe al comprador, p. ej. https://facfood.vercel.app
+        sync: false

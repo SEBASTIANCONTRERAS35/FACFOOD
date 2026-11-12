@@ -2,7 +2,7 @@
 
 Dueños de escritura (ver docs/CONTRATO.md):
   Sebastián: usuarios, puntos_venta, productos, destinos, cupones, usos_cupon,
-             ordenes (crear/pagar), lineas_orden, facturas
+             ordenes (crear/pagar), lineas_orden, facturas, pagos
   Arturo:    entregas; ordenes de PAGADA en adelante y puntos_venta.abierto
   Ambos:     orden_eventos (cada quien registra las transiciones de su tramo)
 """
@@ -23,9 +23,11 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
     Uuid,
     func,
 )
+from sqlalchemy import text as sql_texto
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -192,4 +194,28 @@ class EntregaM(Base):
     entregada_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
         CheckConstraint("estado IN ('ACEPTADA','RECOGIDA','ENTREGADA')", name="ck_entregas_estado"),
+    )
+
+
+class PagoM(Base):
+    """Cada intento de cobro de una orden (ADR 004). El monto lo fija el servidor al crear la sesión."""
+
+    __tablename__ = "pagos"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    orden_id: Mapped[int] = mapped_column(ForeignKey("ordenes.id"), index=True)
+    proveedor: Mapped[str] = mapped_column(String(20))
+    referencia: Mapped[str | None] = mapped_column(String(255))
+    monto: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    estado: Mapped[str] = mapped_column(String(20), default="PENDIENTE")
+    url: Mapped[str | None] = mapped_column(Text)
+    expira_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    evento_id: Mapped[str | None] = mapped_column(String(255))
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (
+        CheckConstraint("estado IN ('PENDIENTE','PAGADO','FALLIDO','EXPIRADO')", name="ck_pagos_estado"),
+        CheckConstraint("monto > 0", name="ck_pagos_monto"),
+        UniqueConstraint("proveedor", "referencia", name="uq_pagos_referencia"),
+        # A lo más un pago en curso por orden: evita cobrar dos veces la misma orden.
+        Index("uq_pagos_un_pendiente", "orden_id", unique=True, postgresql_where=sql_texto("estado = 'PENDIENTE'")),
     )

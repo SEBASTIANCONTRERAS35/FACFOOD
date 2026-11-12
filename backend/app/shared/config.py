@@ -2,6 +2,8 @@
 
 FACFOOD_REPOSITORIO=memoria  -> datos de ejemplo en memoria (no requiere base de datos)
 FACFOOD_REPOSITORIO=postgres -> PostgreSQL + PostGIS (DATABASE_URL)
+FACFOOD_PASARELA=simulado     -> pago simulado, sin cobro (por defecto)
+FACFOOD_PASARELA=stripe       -> Stripe Checkout; requiere STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET
 """
 
 import os
@@ -35,6 +37,12 @@ class Config:
     # Solo para desarrollo: en producción debe ser False.
     permitir_usuario_prueba: bool
     cors_origenes: tuple[str, ...]
+    pasarela: str = "simulado"
+    # Secretos de Stripe: solo en variables de entorno (Render), nunca en el repositorio.
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
+    # A dónde regresa Stripe al comprador (éxito o cancelación).
+    url_frontend: str = "http://localhost:5173"
 
 
 @lru_cache
@@ -52,4 +60,8 @@ def obtener_config() -> Config:
             for o in os.getenv("FACFOOD_CORS", "http://localhost:5173").split(",")
             if o.strip()
         ),
+        pasarela=os.getenv("FACFOOD_PASARELA", "simulado").strip().lower(),
+        stripe_secret_key=os.getenv("STRIPE_SECRET_KEY") or None,
+        stripe_webhook_secret=os.getenv("STRIPE_WEBHOOK_SECRET") or None,
+        url_frontend=os.getenv("FACFOOD_URL_FRONTEND", "http://localhost:5173").rstrip("/"),
     )

@@ -15,6 +15,7 @@ from app.adapters.postgres.modelos import (
     FacturaM,
     LineaOrdenM,
     OrdenM,
+    PagoM,
     ProductoM,
     PuntoVentaM,
     UsoCuponM,
@@ -24,6 +25,7 @@ from app.domain.crm.retencion import Cupon
 from app.domain.erp.factura import Factura
 from app.domain.erp.orden import LineaPedido, Orden
 from app.domain.usuario import Usuario
+from app.ports.pagos import PagoRegistro
 from app.ports.repositorios import (
     CuentaUsuario,
     CuponRegistro,
@@ -423,6 +425,55 @@ class EntregaRepoPg(_Repo):
     def de_repartidor(self, repartidor_id):
         filas = self.s.scalars(select(EntregaM).where(EntregaM.repartidor_id == repartidor_id).order_by(EntregaM.id))
         return [self._a_registro(m) for m in filas]
+
+
+# ---- Pagos ----
+def _a_pago(m: PagoM) -> PagoRegistro:
+    return PagoRegistro(
+        id=m.id, orden_id=m.orden_id, proveedor=m.proveedor, referencia=m.referencia, monto=Decimal(m.monto),
+        estado=m.estado, url=m.url, expira_en=m.expira_en, evento_id=m.evento_id,
+        creado_en=m.creado_en, actualizado_en=m.actualizado_en,
+    )
+
+
+class PagoRepoPg(_Repo):
+    def agregar(self, registro):
+        m = PagoM(
+            orden_id=registro.orden_id, proveedor=registro.proveedor, referencia=registro.referencia,
+            monto=registro.monto, estado=registro.estado, url=registro.url, expira_en=registro.expira_en,
+            evento_id=registro.evento_id,
+        )
+        self.s.add(m)
+        try:
+            self.s.flush()
+        except IntegrityError as exc:
+            nombre = getattr(getattr(exc.orig, "diag", None), "constraint_name", None)
+            if nombre == "uq_pagos_un_pendiente":
+                raise Conflicto("Ya hay un pago en curso para esta orden", "PAGO_EN_CURSO") from exc
+            raise
+        self.s.refresh(m)
+        return _a_pago(m)
+
+    def guardar(self, registro):
+        m = self.s.get(PagoM, registro.id)
+        m.referencia, m.estado, m.url = registro.referencia, registro.estado, registro.url
+        m.expira_en, m.evento_id, m.actualizado_en = registro.expira_en, registro.evento_id, func.now()
+        self.s.flush()
+
+    def _uno(self, consulta, bloquear):
+        if bloquear:
+            consulta = consulta.with_for_update().execution_options(populate_existing=True)
+        m = self.s.scalar(consulta)
+        return _a_pago(m) if m else None
+
+    def por_referencia(self, proveedor, referencia, bloquear=False):
+        return self._uno(select(PagoM).where(PagoM.proveedor == proveedor, PagoM.referencia == referencia), bloquear)
+
+    def pendiente_de_orden(self, orden_id, bloquear=False):
+        return self._uno(select(PagoM).where(PagoM.orden_id == orden_id, PagoM.estado == "PENDIENTE"), bloquear)
+
+    def de_orden(self, orden_id):
+        return [_a_pago(m) for m in self.s.scalars(select(PagoM).where(PagoM.orden_id == orden_id).order_by(PagoM.id))]
 
 
 class FacturaRepoPg(_Repo):

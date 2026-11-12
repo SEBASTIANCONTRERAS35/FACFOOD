@@ -12,6 +12,7 @@ from app.entregas.router import router as entregas
 from app.seguimiento.router import router as seguimiento
 from app.shared.config import obtener_config
 from app.shared.errores import documentar_errores, registrar_manejadores
+from app.shared.pasarela import obtener_pasarela
 from app.vendedor.router import router as vendedor
 
 
@@ -39,6 +40,7 @@ def create_app() -> FastAPI:
             {"name": "Cuentas", "description": "Registro (LFPDPPP), login con JWT y perfil dual · vista 01"},
             {"name": "Catálogo", "description": "Puestos cercanos con PostGIS y menú · vistas 02 y 03"},
             {"name": "Checkout", "description": "Orden, cupón o lealtad, entrega (Strategy) y pago · vista 04"},
+            {"name": "Pagos", "description": "Pago con tarjeta (Stripe Checkout, modo de prueba) o simulado · ADR 004"},
             {"name": "Mis pedidos", "description": "Historial de pedidos del usuario"},
             {"name": "Cupones", "description": "Nivel de lealtad y cupones disponibles para el usuario"},
             {"name": "Seguimiento", "description": "Estado del pedido y factura · vista 05"},
@@ -54,6 +56,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     registrar_manejadores(app)
+    obtener_pasarela()  # falla al arrancar si FACFOOD_PASARELA=stripe y faltan los secretos
 
     # Sebastián: vistas 01–04
     app.include_router(cuentas)
