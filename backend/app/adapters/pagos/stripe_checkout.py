@@ -47,7 +47,9 @@ class PagoStripe:
         metadatos = {"orden_id": str(orden_id), "pago_id": str(pago_id)}
         parametros = {
             "mode": "payment",
-            "payment_method_types": ["card"],
+            # Desde la API 2026-10-28 Stripe ya no acepta payment_method_types en Checkout (400);
+            # allowed_payment_method_types filtra los métodos elegibles: solo tarjeta.
+            "allowed_payment_method_types": ["card"],
             "line_items": [{
                 "quantity": 1,
                 "price_data": {"currency": "mxn", "unit_amount": a_centavos(monto), "product_data": {"name": descripcion}},

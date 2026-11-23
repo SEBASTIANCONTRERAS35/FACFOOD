@@ -107,7 +107,8 @@ def test_la_sesion_se_crea_en_centavos_mxn_con_metadatos_y_llave_de_idempotencia
     precio = params["line_items"][0]["price_data"]
     assert (precio["currency"], precio["unit_amount"]) == ("mxn", 6508)
     assert params["metadata"] == {"orden_id": "7", "pago_id": "3"} and params["client_reference_id"] == "3"
-    assert params["expires_at"] == int(expira.timestamp()) and params["payment_method_types"] == ["card"]
+    assert params["expires_at"] == int(expira.timestamp()) and params["allowed_payment_method_types"] == ["card"]
+    assert "payment_method_types" not in params  # rechazado por Stripe desde la API 2026-10-28
     assert options == {"idempotency_key": "facfood-pago-3"}
 
 
