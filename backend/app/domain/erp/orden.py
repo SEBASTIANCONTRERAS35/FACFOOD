@@ -278,6 +278,30 @@ class Orden:
                 self._cupon.registrar_uso()
         self.estado = destino
 
+    def confirmar_cobro(self, cupon: Cupon | None = None) -> bool:
+        """CREADA -> PAGADA cuando la pasarela ya cobró el total (ADR 004).
+
+        A diferencia de avanzar_estado(PAGADA), no recalcula el descuento: el dinero ya se
+        cobró con el monto fijado al iniciar el pago. Si el cupón se agotó o venció mientras
+        el comprador pagaba, se respeta el descuento cobrado y no se cuenta un uso extra.
+        `cupon` es la copia bloqueada del cupón. Devuelve True si consumió un uso del cupón.
+        """
+        if EstadoOrden.PAGADA not in TRANSICIONES[self.estado]:
+            raise InvalidStateTransitionException(
+                f"No se puede pasar de {self.estado.value} a {EstadoOrden.PAGADA.value}"
+            )
+        if not self._lineas:
+            raise OrdenVaciaError("No se puede pagar una orden sin líneas")
+        consumido = False
+        if self._origen_descuento == "cupon":
+            cupon = cupon or self._cupon
+            if cupon is not None and cupon.usos_actuales < cupon.usos_maximos:
+                cupon.registrar_uso()
+                self._cupon = cupon
+                consumido = True
+        self.estado = EstadoOrden.PAGADA
+        return consumido
+
     @staticmethod
     def _a_estado(valor) -> EstadoOrden:
         try:

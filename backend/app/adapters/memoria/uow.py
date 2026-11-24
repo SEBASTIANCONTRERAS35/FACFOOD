@@ -32,6 +32,7 @@ class _Datos:
     eventos: list = field(default_factory=list)
     facturas: dict = field(default_factory=dict)
     entregas: dict = field(default_factory=dict)
+    pagos: dict = field(default_factory=dict)
     secuencias: dict = field(default_factory=dict)
 
     def siguiente_id(self, tabla: str) -> int:
@@ -245,6 +246,38 @@ class EntregaRepoMemoria(_Repo):
         return [copy.deepcopy(e) for e in sorted(self.d.entregas.values(), key=lambda e: e.id or 0) if e.repartidor_id == repartidor_id]
 
 
+class PagoRepoMemoria(_Repo):
+    def agregar(self, registro):
+        registro = copy.deepcopy(registro)
+        registro.id = self.d.siguiente_id("pagos")
+        registro.creado_en = registro.creado_en or _ahora()
+        registro.actualizado_en = registro.creado_en
+        if registro.estado == "PENDIENTE" and self.pendiente_de_orden(registro.orden_id):
+            raise Conflicto("Ya hay un pago en curso para esta orden", "PAGO_EN_CURSO")
+        self.d.pagos[registro.id] = registro
+        return copy.deepcopy(registro)
+
+    def guardar(self, registro):
+        registro = copy.deepcopy(registro)
+        registro.actualizado_en = _ahora()
+        self.d.pagos[registro.id] = registro
+
+    def por_referencia(self, proveedor, referencia, bloquear=False):
+        for p in self.d.pagos.values():
+            if p.proveedor == proveedor and p.referencia == referencia:
+                return copy.deepcopy(p)
+        return None
+
+    def pendiente_de_orden(self, orden_id, bloquear=False):
+        for p in self.d.pagos.values():
+            if p.orden_id == orden_id and p.estado == "PENDIENTE":
+                return copy.deepcopy(p)
+        return None
+
+    def de_orden(self, orden_id):
+        return [copy.deepcopy(p) for p in sorted(self.d.pagos.values(), key=lambda p: p.id) if p.orden_id == orden_id]
+
+
 class UnidadDeTrabajoMemoria:
     def __init__(self, almacen: AlmacenMemoria):
         self._almacen = almacen
@@ -263,6 +296,7 @@ class UnidadDeTrabajoMemoria:
         self.eventos = EventoRepoMemoria(d)
         self.facturas = FacturaRepoMemoria(d)
         self.entregas = EntregaRepoMemoria(d)
+        self.pagos = PagoRepoMemoria(d)
         return self
 
     def __exit__(self, tipo, valor, traza):

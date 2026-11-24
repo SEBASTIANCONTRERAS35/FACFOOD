@@ -39,6 +39,16 @@ class PagoEntrada(BaseModel):
     )
 
 
+class SesionPagoSalida(BaseModel):
+    """Cobro abierto en la pasarela. Con `simulado`, `url` es null y se confirma con POST /pagar."""
+
+    pasarela: str = Field(description="`simulado` o `stripe`")
+    orden_id: int
+    url: str | None = Field(description="Página de pago de Stripe a la que se redirige al comprador")
+    monto: str = Field(description="Lo que se cobra, calculado por el servidor (MXN)")
+    expira_en: str | None
+
+
 class Ref(BaseModel):
     id: int
     nombre: str

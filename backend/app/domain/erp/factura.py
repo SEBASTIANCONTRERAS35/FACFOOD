@@ -26,7 +26,7 @@ class RfcInvalidoError(Exception):
 def validar_rfc(rfc: str) -> str:
     rfc = rfc.strip().upper()
     if not _PATRON_RFC.match(rfc):
-        raise RfcInvalidoError(f"RFC con formato inválido: {rfc!r}")
+        raise RfcInvalidoError("El RFC no tiene un formato válido")  # no se repite lo que escribió el usuario
     return rfc
 
 

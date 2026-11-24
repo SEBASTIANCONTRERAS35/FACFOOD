@@ -93,7 +93,7 @@ Usuarios de ejemplo (todos con contraseña `facfood123`): `diana@facfood.mx` (co
 - **Quién administra:** las cuentas son de quien las creó. Para que otro integrante pueda
   entrar, invítenlo en cada servicio (Neon: *Settings → Members*; Render y Vercel: el plan
   gratis es personal, compartan la sesión o transfieran el proyecto si hace falta).
-- **No subir secretos al repo:** `DATABASE_URL` y `FACFOOD_JWT_SECRETO` viven solo en Render.
+- **No subir secretos al repo:** `DATABASE_URL`, `FACFOOD_JWT_SECRETO` y las llaves de Stripe viven solo en Render.
 
 ## 6.1 Publicar una versión nueva
 
@@ -110,6 +110,41 @@ Si el despliegue no está conectado a GitHub, cada cambio en `main` hay que publ
 Auto-Deploy: Yes* con el repo `SEBASTIANCONTRERAS35/FACFOOD`; en Vercel, *Settings → Git →
 Connect Git Repository* con el mismo repo y *Production Branch* = `main`.
 
+## 6.2 Activar el pago con tarjeta (Stripe, modo de prueba)
+
+Mientras no se haga esto, la app usa el pago simulado (`FACFOOD_PASARELA=simulado`). Ver [ADR 004](../ADR_004.md).
+
+1. **Crear la cuenta** en https://dashboard.stripe.com/register con un correo personal (no
+   institucional). No hace falta activarla ni dar datos fiscales: todo se queda en **modo de prueba**
+   (el interruptor *Test mode* arriba a la derecha debe estar encendido).
+2. **Llave secreta**: *Developers → API keys → Secret key* (`sk_test_…`). Nunca la de `sk_live_`.
+3. **Webhook**: *Developers → Webhooks → Add endpoint*
+   - URL: `https://facfood-api.onrender.com/pagos/webhook`
+   - Eventos: `checkout.session.completed`, `checkout.session.expired`,
+     `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
+   - Copiar el **Signing secret** (`whsec_…`).
+4. **Render** → `facfood-api` → *Environment*, agregar:
+   - `STRIPE_SECRET_KEY` = `sk_test_…`
+   - `STRIPE_WEBHOOK_SECRET` = `whsec_…`
+   - `FACFOOD_URL_FRONTEND` = `https://facfood.vercel.app`
+   - y **al final** `FACFOOD_PASARELA` = `stripe` (si falta una llave, la API no arranca a propósito).
+5. Guardar y desplegar (§6.1). Comprobar: `https://facfood-api.onrender.com/salud` dice `"pasarela":"stripe"`.
+6. **Probar**: pedir algo en la app y pagar con `4242 4242 4242 4242`, fecha futura, CVC `123`.
+   En Stripe, *Developers → Webhooks → (endpoint)* debe mostrar el aviso con respuesta **200**.
+   Tarjeta rechazada para probar: `4000 0000 0000 0002`.
+
+Para volver al simulado basta con `FACFOOD_PASARELA=simulado`. Para compartir el panel de Stripe con
+el equipo: *Settings → Team → Invite*.
+
+**Probar en local** (opcional): instalar la [Stripe CLI](https://docs.stripe.com/stripe-cli), y en
+`backend/`:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:8000/pagos/webhook   # imprime un whsec_ de prueba
+FACFOOD_PASARELA=stripe STRIPE_SECRET_KEY=sk_test_... STRIPE_WEBHOOK_SECRET=whsec_...   uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
 ## 7. Si algo falla
 
 | Síntoma | Causa probable | Solución |
@@ -120,4 +155,7 @@ Connect Git Repository* con el mismo repo y *Production Branch* = `main`.
 | Al recargar una página sale 404 | El proyecto de Vercel no usa `frontend` como raíz | *Settings → General → Root Directory* = `frontend` |
 | Render falla con `relation ... does not exist` | No corrió la migración | Revisa el *Start Command* del `render.yaml` y los logs del despliegue |
 | Render falla al conectar a la base | `DATABASE_URL` incompleta | Debe incluir `?sslmode=require` (viene así desde Neon) |
+| Render no arranca tras poner `FACFOOD_PASARELA=stripe` | Falta `STRIPE_SECRET_KEY` o `STRIPE_WEBHOOK_SECRET` | Agrégalas en *Environment* y vuelve a desplegar |
+| En Stripe el webhook responde **400** | El `whsec_` en Render no es el de ese endpoint | Copia el *Signing secret* del endpoint de producción, no el de `stripe listen` |
+| Pagué y la app se queda en "Confirmando tu pago…" | El aviso no llegó (API dormida) o falló | Revisa el webhook en Stripe; reintenta el evento desde ahí |
 | No aparece "Instalar" en el celular | La página no está en HTTPS o ya está instalada | Usa la dirección `https://…vercel.app` |

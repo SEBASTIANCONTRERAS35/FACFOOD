@@ -17,7 +17,7 @@ Cada error responde `application/problem+json` con esta forma:
 - `type` apunta a la sección de este documento; `title` es fijo por tipo; `detail` explica esta ocurrencia.
 - `codigo` es una extensión estable para que el frontend reaccione; `invalid_params` solo aparece en el 400.
 - **Ningún error repite lo que envió el usuario** (contraseñas, códigos de entrega).
-- Criterio de status: **400** DTO inválido · **401** sin sesión · **403** sin rol · **404** no existe · **409** conflicto de estado · **422** regla de negocio.
+- Criterio de status: **400** DTO inválido · **401** sin sesión · **403** sin rol · **404** no existe · **409** conflicto de estado · **422** regla de negocio · **502** la pasarela de pago no respondió.
 
 Implementación: `backend/app/shared/errores.py` (manejadores globales de FastAPI).
 
@@ -101,6 +101,18 @@ Implementación: `backend/app/shared/errores.py` (manejadores globales de FastAP
 
 **409** · Orden ya pagada — Se intentó pagar una orden que ya no está CREADA.
 
+### `PAGO_EN_CURSO`
+
+**409** · Pago en curso — La orden tiene un cobro abierto en Stripe: no se puede cambiar cupón ni entrega hasta cancelarlo (`DELETE /ordenes/{id}/checkout`) o que expire.
+
+### `PAGO_EN_LINEA_REQUERIDO`
+
+**409** · Se requiere pago con tarjeta — Con `FACFOOD_PASARELA=stripe` el pago simulado (`POST /ordenes/{id}/pagar`) está desactivado; se paga con `POST /ordenes/{id}/checkout`.
+
+### `PAGO_YA_REALIZADO`
+
+**409** · Pago ya realizado — Se quiso cancelar un cobro que Stripe ya completó; la orden se confirma al llegar el aviso.
+
 ### `PUESTO_CERRADO`
 
 **409** · Puesto cerrado — El puesto está cerrado; no recibe órdenes.
@@ -156,6 +168,14 @@ Implementación: `backend/app/shared/errores.py` (manejadores globales de FastAP
 ### `SIN_ENTREGA`
 
 **422** · El puesto no ofrece entrega — El puesto solo ofrece pickup.
+
+### `FIRMA_INVALIDA`
+
+**400** · Firma del aviso inválida — `POST /pagos/webhook` sin encabezado `Stripe-Signature` válido (ausente, alterado, otro secreto o más de 5 minutos de antigüedad). No se procesa nada.
+
+### `PASARELA_NO_DISPONIBLE`
+
+**502** · Pasarela de pago no disponible — Stripe no respondió o rechazó la operación. No queda ningún cobro abierto; se puede reintentar.
 
 ### `ERROR_INTERNO`
 

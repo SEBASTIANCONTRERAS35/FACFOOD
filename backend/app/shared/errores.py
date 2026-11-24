@@ -73,6 +73,11 @@ class DatosInvalidos(ErrorDeAplicacion):
     codigo = "DATOS_INVALIDOS"
 
 
+class ServicioNoDisponible(ErrorDeAplicacion):
+    status = 502
+    codigo = "PASARELA_NO_DISPONIBLE"
+
+
 # Excepciones del dominio -> (status HTTP, código)
 ERRORES_DE_DOMINIO = {
     ConsentimientoRequeridoError: (422, "CONSENTIMIENTO_REQUERIDO"),
@@ -122,6 +127,11 @@ TITULOS = {
     "SIN_ENTREGA": "El puesto no ofrece entrega",
     "DESTINO_REQUERIDO": "Falta el destino de la entrega",
     "CODIGO_ENTREGA_INVALIDO": "Código de entrega inválido",
+    "PAGO_EN_CURSO": "Pago en curso",
+    "PAGO_YA_REALIZADO": "Pago ya realizado",
+    "PAGO_EN_LINEA_REQUERIDO": "Se requiere pago con tarjeta",
+    "PASARELA_NO_DISPONIBLE": "Pasarela de pago no disponible",
+    "FIRMA_INVALIDA": "Firma del aviso inválida",
     "METODO_NO_PERMITIDO": "Método HTTP no permitido",
     "ERROR_INTERNO": "Error interno del servidor",
 }

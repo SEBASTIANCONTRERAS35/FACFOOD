@@ -89,6 +89,20 @@ Seguimiento del pedido, panel del vendedor y modo repartidor (`backend/app/segui
 ## Despliegue
 Publicado en https://facfood.vercel.app (API en Render con PostgreSQL + PostGIS). Ver `docs/DESPLIEGUE.md`.
 
+## Pagos y entrega final (ADR 004)
+| Qué se hizo | Dónde |
+|---|---|
+| Puerto `PasarelaDePago` con dos adaptadores: Stripe Checkout (modo de prueba) y pago simulado | `backend/app/ports/pagos.py`, `backend/app/adapters/pagos/` |
+| Abrir y cancelar el cobro con el monto del servidor; un solo cobro abierto por orden | `POST`/`DELETE /ordenes/{id}/checkout`, `backend/app/checkout/servicio.py` |
+| Webhook autenticado con la firma de Stripe, idempotente y que valida orden, moneda y monto | `POST /pagos/webhook` |
+| Tabla `pagos` con índice parcial único | `backend/migrations/versions/0003_pagos.py` |
+| Redirección a Stripe y página que espera la confirmación | `frontend/src/features/carrito/PagoResultadoPage.tsx` |
+| Pruebas sin red (firma HMAC real) y en PostgreSQL | `backend/tests/api/test_pagos.py`, `tests/unit/test_pago_stripe.py`, `tests/integracion/test_pagos_pg.py` |
+| Guía para activar Stripe en Render | `docs/DESPLIEGUE.md` §6.2 |
+
 ## Siguiente
+- Activar la cuenta de Stripe (llaves de prueba en Render) y probar con la tarjeta 4242
+- Comisión de la plataforma y pago dividido al vendedor (Stripe Connect); el cálculo ya existe en `Orden.dividir_pago`
+- OXXO / SPEI y reembolsos desde la app
 - Conectar Vercel y Render al repo para que cada cambio en `main` se publique solo
 - Módulo SCM

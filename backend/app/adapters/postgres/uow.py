@@ -8,6 +8,7 @@ from app.adapters.postgres.repos import (
     EventoRepoPg,
     FacturaRepoPg,
     OrdenRepoPg,
+    PagoRepoPg,
     ProductoRepoPg,
     PuntoVentaRepoPg,
     UsuarioRepoPg,
@@ -37,6 +38,7 @@ class UnidadDeTrabajoPostgres:
         self.eventos = EventoRepoPg(s)
         self.facturas = FacturaRepoPg(s)
         self.entregas = EntregaRepoPg(s)
+        self.pagos = PagoRepoPg(s)
         return self
 
     def __exit__(self, *exc):
